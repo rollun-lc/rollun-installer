@@ -134,8 +134,8 @@ class Command
 
                     //get path to src
                     $match = [];
-                    $path = preg_match('/\/src\/([\w-\/]+)/', $item->getPath(), $match)
-                    && isset($match[1]) ? $match[1] : $path;
+                    $path = preg_match('/\/src\/([\w-\/]+)/', $path, $match)
+                    && isset($match[1]) ? $match[1] : null;
 
                     $namespace_ = $namespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
                     $class = rtrim($namespace_, '\\') . '\\' . $item->getBasename('.php');
