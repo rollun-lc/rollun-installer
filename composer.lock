@@ -4,55 +4,9 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2086b50de87f4a4b5d8165e7b5f01cf9",
-    "content-hash": "455f15deaa0434b2337fa50c718802bd",
+    "hash": "e247deef557da871175533cd9c13b4de",
+    "content-hash": "e893f45e7b60d85b6c59a8c7ad713d35",
     "packages": [
-        {
-            "name": "avz-cmf/zaboy-installer",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/avz-cmf/zaboy-installer.git",
-                "reference": "62f44ff9c0b68ec9e75e78d333b14c612efb2768"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/avz-cmf/zaboy-installer/zipball/62f44ff9c0b68ec9e75e78d333b14c612efb2768",
-                "reference": "62f44ff9c0b68ec9e75e78d333b14c612efb2768",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.1",
-                "composer/composer": "^1.0",
-                "php": "^5.6 || ^7.0",
-                "zendframework/zend-servicemanager": "^3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "zaboy\\installer\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "proprietary"
-            ],
-            "authors": [
-                {
-                    "name": "avz-cmf",
-                    "email": "email@example.com"
-                },
-                {
-                    "name": "victorynox",
-                    "email": "it.proffesor02@gmail.com"
-                }
-            ],
-            "description": "Installer lib for create and automated install specific app/lib pref",
-            "time": "2016-12-30 08:22:53"
-        },
         {
             "name": "composer/ca-bundle",
             "version": "1.0.6",
@@ -113,16 +67,16 @@
         },
         {
             "name": "composer/composer",
-            "version": "1.3.0",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "e53f9e5381e70f76e098136343e27d92601eade7"
+                "reference": "91dbca556764dcece45e1ba3aab14de2deaa9fec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/e53f9e5381e70f76e098136343e27d92601eade7",
-                "reference": "e53f9e5381e70f76e098136343e27d92601eade7",
+                "url": "https://api.github.com/repos/composer/composer/zipball/91dbca556764dcece45e1ba3aab14de2deaa9fec",
+                "reference": "91dbca556764dcece45e1ba3aab14de2deaa9fec",
                 "shasum": ""
             },
             "require": {
@@ -186,7 +140,7 @@
                 "dependency",
                 "package"
             ],
-            "time": "2016-12-23 23:47:04"
+            "time": "2017-01-07 17:08:51"
         },
         {
             "name": "composer/semver",
@@ -1075,16 +1029,16 @@
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "1.3.7",
+            "version": "1.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "969ff423d3f201da3ff718a5831bb999bb0669b0"
+                "reference": "d9c1fd7c4b024179d49faf367da544b4eef7cfe8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/969ff423d3f201da3ff718a5831bb999bb0669b0",
-                "reference": "969ff423d3f201da3ff718a5831bb999bb0669b0",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/d9c1fd7c4b024179d49faf367da544b4eef7cfe8",
+                "reference": "d9c1fd7c4b024179d49faf367da544b4eef7cfe8",
                 "shasum": ""
             },
             "require": {
@@ -1096,7 +1050,7 @@
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.6 || ^5.5",
-                "squizlabs/php_codesniffer": "^2.3.1"
+                "zendframework/zend-coding-standard": "~1.0.0"
             },
             "type": "library",
             "extra": {
@@ -1121,7 +1075,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2016-10-11 13:25:21"
+            "time": "2017-01-05 21:44:28"
         },
         {
             "name": "zendframework/zend-escaper",
@@ -1275,16 +1229,16 @@
         },
         {
             "name": "zendframework/zend-stratigility",
-            "version": "1.3.1",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-stratigility.git",
-                "reference": "c410d367bb85f0a3cca44f112957d0ee28895d19"
+                "reference": "ffbf29ceb92a9223b8383ea2b021b242591141d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-stratigility/zipball/c410d367bb85f0a3cca44f112957d0ee28895d19",
-                "reference": "c410d367bb85f0a3cca44f112957d0ee28895d19",
+                "url": "https://api.github.com/repos/zendframework/zend-stratigility/zipball/ffbf29ceb92a9223b8383ea2b021b242591141d2",
+                "reference": "ffbf29ceb92a9223b8383ea2b021b242591141d2",
                 "shasum": ""
             },
             "require": {
@@ -1294,8 +1248,8 @@
                 "zendframework/zend-escaper": "^2.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.7 || ^5.5",
-                "squizlabs/php_codesniffer": "^2.6.2",
+                "phpunit/phpunit": "^5.6",
+                "zendframework/zend-coding-standard": "~1.0.0",
                 "zendframework/zend-diactoros": "^1.0"
             },
             "suggest": {
@@ -1324,7 +1278,7 @@
                 "middleware",
                 "psr-7"
             ],
-            "time": "2016-11-11 00:16:05"
+            "time": "2017-01-05 22:22:10"
         }
     ],
     "packages-dev": [

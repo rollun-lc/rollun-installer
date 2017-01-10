@@ -8,7 +8,6 @@
 
 namespace zaboy\test\skeleton;
 
-
 class TestEnvTest extends \PHPUnit_Framework_TestCase
 {
     protected $nameEnvVars = [

@@ -1,6 +1,6 @@
 {
-  "name": "avz-cmf/zaboy-skeleton",
-  "description": "zaboy skeleton app",
+  "name": "rollun-com/installer",
+  "description": "Installer",
   "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [
@@ -21,21 +21,24 @@
     "zendframework/zend-diactoros": "^1.1",
     "zendframework/zend-config": "^2.6",
     "zendframework/zend-stdlib": "^3",
-    "avz-cmf/zaboy-installer": "^2.1"
+    "composer/composer": "^1.0",
+    "composer-plugin-api": "^1.1"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.0"
   },
   "autoload": {
     "psr-4": {
-      "zaboy\\skeleton\\": "src/"
+      "zaboy\\installer\\": "src/"
     }
   },
+
   "autoload-dev": {
     "psr-4": {
-      "zaboy\\test\\skeleton\\": "tests/src"
+      "zaboy\\test\\installer\\": "tests/src"
     }
   },
+
   "scripts": {
     "lib-install": "zaboy\\installer\\Command::install",
     "lib-uninstall": "zaboy\\installer\\Command::uninstall",
