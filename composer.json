@@ -29,19 +29,19 @@
   },
   "autoload": {
     "psr-4": {
-      "zaboy\\installer\\": "src/"
+      "rolluncom\\installer\\": "src/"
     }
   },
 
   "autoload-dev": {
     "psr-4": {
-      "zaboy\\test\\installer\\": "tests/src"
+      "rolluncom\\test\\installer\\": "tests/src"
     }
   },
 
   "scripts": {
-    "lib-install": "zaboy\\installer\\Command::install",
-    "lib-uninstall": "zaboy\\installer\\Command::uninstall",
-    "lib-reinstall": "zaboy\\installer\\Command::reinstall"
+    "lib-install": "rolluncom\\installer\\Command::install",
+    "lib-uninstall": "rolluncom\\installer\\Command::uninstall",
+    "lib-reinstall": "rolluncom\\installer\\Command::reinstall"
   }
 }

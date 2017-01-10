@@ -7,14 +7,14 @@
  * Time: 4:02 PM
  */
 
-namespace zaboy\installer;
+namespace rolluncom\installer;
 
 use Composer\IO\IOInterface;
 use Composer\Script\Event;
 use FilesystemIterator;
 use Interop\Container\ContainerInterface;
 use RecursiveDirectoryIterator;
-use zaboy\installer\Install\InstallerInterface;
+use rolluncom\installer\Install\InstallerInterface;
 
 require_once 'config/env_configurator.php';
 

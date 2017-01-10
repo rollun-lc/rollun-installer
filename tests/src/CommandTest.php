@@ -6,9 +6,9 @@
  * Time: 13:58
  */
 
-namespace zaboy\test\installer;
+namespace rolluncom\test\installer;
 
-use zaboy\installer\Command;
+use rolluncom\installer\Command;
 
 class CommandTest extends \PHPUnit_Framework_TestCase
 {

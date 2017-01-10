@@ -6,7 +6,7 @@
  * Time: 5:03 PM
  */
 
-namespace zaboy\installer\Install;
+namespace rolluncom\installer\Install;
 
 use Composer\IO\IOInterface;
 use Interop\Container\ContainerInterface;
