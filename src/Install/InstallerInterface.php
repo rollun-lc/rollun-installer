@@ -6,7 +6,7 @@
  * Time: 5:03 PM
  */
 
-namespace rolluncom\installer\Install;
+namespace rollun\installer\Install;
 
 use Composer\IO\IOInterface;
 use Interop\Container\ContainerInterface;

@@ -7,14 +7,14 @@
  * Time: 4:02 PM
  */
 
-namespace rolluncom\installer;
+namespace rollun\installer;
 
 use Composer\IO\IOInterface;
 use Composer\Script\Event;
 use FilesystemIterator;
 use Interop\Container\ContainerInterface;
 use RecursiveDirectoryIterator;
-use rolluncom\installer\Install\InstallerInterface;
+use rollun\installer\Install\InstallerInterface;
 
 require_once 'config/env_configurator.php';
 

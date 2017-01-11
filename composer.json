@@ -1,5 +1,5 @@
 {
-  "name": "rollun-com/installer",
+  "name": "rollun-com/rollun-installer",
   "description": "Installer",
   "minimum-stability": "stable",
   "license": "proprietary",
@@ -29,19 +29,19 @@
   },
   "autoload": {
     "psr-4": {
-      "rolluncom\\installer\\": "src/"
+      "rollun\\installer\\": "src/"
     }
   },
 
   "autoload-dev": {
     "psr-4": {
-      "rolluncom\\test\\installer\\": "tests/src"
+      "rollun\\test\\installer\\": "tests/src"
     }
   },
 
   "scripts": {
-    "lib-install": "rolluncom\\installer\\Command::install",
-    "lib-uninstall": "rolluncom\\installer\\Command::uninstall",
-    "lib-reinstall": "rolluncom\\installer\\Command::reinstall"
+    "lib-install": "rollun\\installer\\Command::install",
+    "lib-uninstall": "rollun\\installer\\Command::uninstall",
+    "lib-reinstall": "rollun\\installer\\Command::reinstall"
   }
 }

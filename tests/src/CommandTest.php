@@ -6,9 +6,9 @@
  * Time: 13:58
  */
 
-namespace rolluncom\test\installer;
+namespace rollun\test\installer;
 
-use rolluncom\installer\Command;
+use rollun\installer\Command;
 
 class CommandTest extends \PHPUnit_Framework_TestCase
 {
