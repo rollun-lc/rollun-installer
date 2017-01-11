@@ -99,9 +99,9 @@
  ```json
    {
        "scripts": {
-          "lib-install": "zaboy\\installer\\Commands::install",
-          "lib-uninstall": "zaboy\\installer\\Commands::uninstall",
-          "lib-reinstall": "zaboy\\installer\\Commands::reinstall"
+          "lib-install": "rollun\\installer\\Commands::install",
+          "lib-uninstall": "rollun\\installer\\Commands::uninstall",
+          "lib-reinstall": "rollun\\installer\\Commands::reinstall"
         }
    }
  ```
