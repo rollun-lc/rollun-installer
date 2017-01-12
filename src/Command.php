@@ -74,15 +74,19 @@ class Command
                 $target . DIRECTORY_SEPARATOR .
                 'src' . DIRECTORY_SEPARATOR;
             $autoload = $dependency->getAutoload();
-            $namespace = array_keys($autoload['psr-4'])[0];
-            $installers = static::getInstallers($namespace, $srcPath);
-            static::callInstallers($installers, $commandType, $event->getIO());
+            if (isset($autoload['psr-4'])) {
+                $namespace = array_keys($autoload['psr-4'])[0];
+                $installers = static::getInstallers($namespace, $srcPath);
+                static::callInstallers($installers, $commandType, $event->getIO());
+            }
         }
 
         $autoload = $composer->getPackage()->getAutoload();
-        $namespace = array_keys($autoload['psr-4'])[0];
-        $installers = static::getInstallers($namespace);
-        static::callInstallers($installers, $commandType, $event->getIO());
+        if (isset($autoload['psr-4'])) {
+            $namespace = array_keys($autoload['psr-4'])[0];
+            $installers = static::getInstallers($namespace);
+            static::callInstallers($installers, $commandType, $event->getIO());
+        }
     }
 
     protected static function callInstallers(array $installers, $commandType, IOInterface $io)
@@ -119,8 +123,12 @@ class Command
         if (!isset($dir)) {
             $dir = realpath('src/');
         }
-        $iterator = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS |
-            FilesystemIterator::KEY_AS_PATHNAME);
+        try {
+            $iterator = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS |
+                FilesystemIterator::KEY_AS_PATHNAME);
+        } catch (\Exception $exception) {
+            return $installer;
+        }
 
         foreach ($iterator as $item) {
             //Save only class who implement InstallerInterface and has Installer in name
@@ -141,11 +149,15 @@ class Command
 
                     $namespace_ = $namespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
                     $class = rtrim($namespace_, '\\') . '\\' . $item->getBasename('.php');
-                    $reflector = new \ReflectionClass($class);
-                    if ($reflector->implementsInterface(InstallerInterface::class) &&
-                        !$reflector->isAbstract() && !$reflector->isInterface()
-                    ) {
-                        $installer[] = $reflector->getName();
+                    try {
+                        $reflector = new \ReflectionClass($class);
+                        if ($reflector->implementsInterface(InstallerInterface::class) &&
+                            !$reflector->isAbstract() && !$reflector->isInterface()
+                        ) {
+                            $installer[] = $reflector->getName();
+                        }
+                    } catch (\ReflectionException $exception) {
+
                     }
                 }
             }
