@@ -64,22 +64,21 @@ class Command
     {
         //founds dep installer only if app
         $composer = $event->getComposer();
-        if (!static::isLib()) {
-            $localRep = $composer->getRepositoryManager()->getLocalRepository();
-            //get all dep lis (include dependency of dependency)
-            $dependencies = $localRep->getPackages();
-            foreach ($dependencies as $dependency) {
-                $target = $dependency->getPrettyName();
-                //get dependencies and get installer
-                $srcPath = $path = realpath('vendor') . DIRECTORY_SEPARATOR .
-                    $target . DIRECTORY_SEPARATOR .
-                    'src' . DIRECTORY_SEPARATOR;
-                $autoload = $dependency->getAutoload();
-                $namespace = array_keys($autoload['psr-4'])[0];
-                $installers = static::getInstallers($srcPath, $namespace);
-                static::callInstallers($installers, $commandType, $event->getIO());
-            }
+        $localRep = $composer->getRepositoryManager()->getLocalRepository();
+        //get all dep lis (include dependency of dependency)
+        $dependencies = $localRep->getPackages();
+        foreach ($dependencies as $dependency) {
+            $target = $dependency->getPrettyName();
+            //get dependencies and get installer
+            $srcPath = $path = realpath('vendor') . DIRECTORY_SEPARATOR .
+                $target . DIRECTORY_SEPARATOR .
+                'src' . DIRECTORY_SEPARATOR;
+            $autoload = $dependency->getAutoload();
+            $namespace = array_keys($autoload['psr-4'])[0];
+            $installers = static::getInstallers($srcPath, $namespace);
+            static::callInstallers($installers, $commandType, $event->getIO());
         }
+
         $autoload = $composer->getPackage()->getAutoload();
         $namespace = array_keys($autoload['psr-4'])[0];
         $installers = static::getInstallers($namespace);
@@ -96,12 +95,15 @@ class Command
     }
 
     /**
-     * Return
+     * Return true if call in lib or false in app
      * @return string
      */
     public static function isLib()
     {
-        return preg_match('/\/vendor\//', __DIR__) == 1;
+        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        $className = $trace[1]['class'];
+        $reflectionClass = new \ReflectionClass($className);
+        return preg_match('/\/vendor\//', $reflectionClass->getFileName()) == 1;
     }
 
     /**
