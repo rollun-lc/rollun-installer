@@ -75,7 +75,7 @@ class Command
                 'src' . DIRECTORY_SEPARATOR;
             $autoload = $dependency->getAutoload();
             $namespace = array_keys($autoload['psr-4'])[0];
-            $installers = static::getInstallers($srcPath, $namespace);
+            $installers = static::getInstallers($namespace, $srcPath);
             static::callInstallers($installers, $commandType, $event->getIO());
         }
 
