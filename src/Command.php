@@ -220,7 +220,7 @@ class Command
         throw new \Exception("The public directory was not found");
     }
 
-    public function getDataDir()
+    public static function getDataDir()
     {
         return realpath('data/');
     }
