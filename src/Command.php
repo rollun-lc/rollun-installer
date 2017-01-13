@@ -10,6 +10,7 @@
 namespace rollun\installer;
 
 use Composer\IO\IOInterface;
+use Composer\Package\PackageInterface;
 use Composer\Script\Event;
 use FilesystemIterator;
 use Interop\Container\ContainerInterface;
@@ -45,11 +46,12 @@ class Command
      */
     public static function install(Event $event)
     {
+        $argv = $event->getArguments();
         try {
-            static::command($event, self::INSTALL);
+            static::command($event, self::INSTALL, (isset($argv[0]) ? $argv[0] : null));
         } catch (\Exception $exception) {
             $event->getIO()->writeError("Installing error: \n" . $exception->getMessage() . "\nUninstalling changes.");
-            static::command($event, self::UNINSTALL);
+            static::command($event, self::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
         }
     }
 
@@ -59,8 +61,9 @@ class Command
      * @param Event $event
      * Type of command doю
      * @param $commandType
+     * @param null $libName
      */
-    protected static function command(Event $event, $commandType)
+    protected static function command(Event $event, $commandType, $libName = null)
     {
         //founds dep installer only if app
         $composer = $event->getComposer();
@@ -68,46 +71,32 @@ class Command
         //get all dep lis (include dependency of dependency)
         $dependencies = $localRep->getPackages();
         foreach ($dependencies as $dependency) {
-            $target = $dependency->getPrettyName();
-            //get dependencies and get installer
-            $srcPath = $path = realpath('vendor') . DIRECTORY_SEPARATOR .
-                $target . DIRECTORY_SEPARATOR .
-                'src' . DIRECTORY_SEPARATOR;
-            $autoload = $dependency->getAutoload();
+            Command::callInstallers($dependency, $commandType, $event, $libName);
+        }
+        Command::callInstallers($composer->getPackage(), $commandType, $event, $libName);
+    }
+
+    /**/
+
+    protected static function callInstallers(PackageInterface $package, $commandType, Event $event, $libName = null)
+    {
+        $autoload = $package->getAutoload();
+        if (!isset($libName) || $package->getPrettyName() == $libName) {
             if (isset($autoload['psr-4'])) {
                 $namespace = array_keys($autoload['psr-4'])[0];
-                $installers = static::getInstallers($namespace, $srcPath);
-                static::callInstallers($installers, $commandType, $event->getIO());
+                $src = $autoload['psr-4'][$namespace];
+                if (!empty($src) && is_string($src)) {
+                    $srcPath = realpath('vendor') . DIRECTORY_SEPARATOR .
+                        $package->getPrettyName() . DIRECTORY_SEPARATOR . $src;
+                    $srcPath = ($package === $event->getComposer()->getPackage()) ? realpath('src/') : $srcPath;
+                    $installers = static::getInstallers($namespace, $srcPath);
+                    foreach ($installers as $installerClass) {
+                        $installer = new $installerClass(self::getContainer(), $event->getIO());
+                        call_user_func([$installer, $commandType]);
+                    }
+                }
             }
         }
-
-        $autoload = $composer->getPackage()->getAutoload();
-        if (isset($autoload['psr-4'])) {
-            $namespace = array_keys($autoload['psr-4'])[0];
-            $installers = static::getInstallers($namespace);
-            static::callInstallers($installers, $commandType, $event->getIO());
-        }
-    }
-
-    protected static function callInstallers(array $installers, $commandType, IOInterface $io)
-    {
-        /** @var InstallerInterface $installer */
-        foreach ($installers as $installerClass) {
-            $installer = new $installerClass(self::getContainer(), $io);
-            call_user_func([$installer, $commandType]);
-        }
-    }
-
-    /**
-     * Return true if call in lib or false in app
-     * @return string
-     */
-    public static function isLib()
-    {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        $className = $trace[1]['class'];
-        $reflectionClass = new \ReflectionClass($className);
-        return preg_match('/\/vendor\//', $reflectionClass->getFileName()) == 1;
     }
 
     /**
@@ -117,12 +106,9 @@ class Command
      * @param string $dir
      * @return InstallerInterface[]
      */
-    public static function getInstallers($namespace, $dir = null)
+    public static function getInstallers($namespace, $dir)
     {
         $installer = [];
-        if (!isset($dir)) {
-            $dir = realpath('src/');
-        }
         try {
             $iterator = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS |
                 FilesystemIterator::KEY_AS_PATHNAME);
@@ -178,12 +164,25 @@ class Command
     }
 
     /**
+     * Return true if call in lib or false in app
+     * @return string
+     */
+    public static function isLib()
+    {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        $className = $trace[1]['class'];
+        $reflectionClass = new \ReflectionClass($className);
+        return preg_match('/\/vendor\//', $reflectionClass->getFileName()) == 1;
+    }
+
+    /**
      * @param Event $event
      * @return void
      */
     public static function uninstall(Event $event)
     {
-        static::command($event, self::UNINSTALL);
+        $argv = $event->getArguments();
+        static::command($event, self::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
     }
 
     /**
@@ -192,11 +191,13 @@ class Command
      */
     public static function reinstall(Event $event)
     {
+        $argv = $event->getArguments();
+
         try {
-            static::command($event, self::REINSTALL);
+            static::command($event, self::REINSTALL, (isset($argv[0]) ? $argv[0] : null));
         } catch (\Exception $exception) {
             $event->getIO()->writeError("Installing error: \n" . $exception->getMessage() . "\nUninstalling changes.");
-            static::command($event, self::UNINSTALL);
+            static::command($event, self::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
         }
 
     }
