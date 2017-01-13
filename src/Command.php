@@ -219,4 +219,9 @@ class Command
         }
         throw new \Exception("The public directory was not found");
     }
+
+    public static function getDataDir()
+    {
+        return realpath('./') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
+    }
 }
