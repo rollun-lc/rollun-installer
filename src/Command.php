@@ -222,6 +222,6 @@ class Command
 
     public static function getDataDir()
     {
-        return realpath('data/');
+        return realpath('./') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
     }
 }
