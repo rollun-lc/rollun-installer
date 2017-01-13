@@ -103,6 +103,12 @@
 * `composer lib-reinstall` - Переустанавливать окружения.  
 
 
+Так же можно неапрямую указывать из кукой библиотеке мы хотим запускать установщики.
+Для этого передать имя библиотеки как первый аргумет команды - 
+* `composer lib-install rollun-com/rollun-datastore` 
+* `composer lib-uninstall rollun-com/rollun-datastore`
+* `composer lib-reinstall rollun-com/rollun-datastore`
+
 ## Composer\IO\IOInterface
 
 [Official DOC](https://getcomposer.org/apidoc/master/Composer/IO/IOInterface.html)
