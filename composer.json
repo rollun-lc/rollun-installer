@@ -35,7 +35,9 @@
       "rollun\\installer\\": "src/"
     }
   },
-
+  "bin": [
+    "bin/InstallerSelfCall"
+  ],
   "autoload-dev": {
     "psr-4": {
       "rollun\\test\\installer\\": "tests/src"
