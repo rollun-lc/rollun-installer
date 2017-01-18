@@ -89,16 +89,18 @@ class Command
                     $srcPath = realpath('vendor') . DIRECTORY_SEPARATOR .
                         $package->getPrettyName() . DIRECTORY_SEPARATOR . $src;
                     $srcPath = ($package === $event->getComposer()->getPackage()) ? realpath('src/') : $srcPath;
-                    $installers = static::getInstallers($namespace, $srcPath);
-                    foreach ($installers as $installerClass) {
-                        try {
-                            $installer = new $installerClass(static::getContainer(), $event->getIO());
-                            call_user_func([$installer, $commandType]);
-                        } catch (\Exception $exception) {
-                            $event->getIO()->writeError(
-                                "Installer: $installerClass crash by exception with message: " .
-                                $exception->getMessage()
-                            );
+                    if (is_dir($srcPath)) {
+                        $installers = static::getInstallers($namespace, $srcPath);
+                        foreach ($installers as $installerClass) {
+                            try {
+                                $installer = new $installerClass(static::getContainer(), $event->getIO());
+                                call_user_func([$installer, $commandType]);
+                            } catch (\Exception $exception) {
+                                $event->getIO()->writeError(
+                                    "Installer: $installerClass crash by exception with message: " .
+                                    $exception->getMessage()
+                                );
+                            }
                         }
                     }
                 }
