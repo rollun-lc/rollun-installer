@@ -48,10 +48,10 @@ class Command
     {
         $argv = $event->getArguments();
         try {
-            static::command($event, self::INSTALL, (isset($argv[0]) ? $argv[0] : null));
+            static::command($event, static::INSTALL, (isset($argv[0]) ? $argv[0] : null));
         } catch (\Exception $exception) {
             $event->getIO()->writeError("Installing error: \n" . $exception->getMessage() . "\nUninstalling changes.");
-            static::command($event, self::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
+            static::command($event, static::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
         }
     }
 
@@ -71,9 +71,9 @@ class Command
         //get all dep lis (include dependency of dependency)
         $dependencies = $localRep->getPackages();
         foreach ($dependencies as $dependency) {
-            Command::callInstallers($dependency, $commandType, $event, $libName);
+            static::callInstallers($dependency, $commandType, $event, $libName);
         }
-        Command::callInstallers($composer->getPackage(), $commandType, $event, $libName);
+        static::callInstallers($composer->getPackage(), $commandType, $event, $libName);
     }
 
     /**/
@@ -91,8 +91,15 @@ class Command
                     $srcPath = ($package === $event->getComposer()->getPackage()) ? realpath('src/') : $srcPath;
                     $installers = static::getInstallers($namespace, $srcPath);
                     foreach ($installers as $installerClass) {
-                        $installer = new $installerClass(self::getContainer(), $event->getIO());
-                        call_user_func([$installer, $commandType]);
+                        try{
+                            $installer = new $installerClass(static::getContainer(), $event->getIO());
+                            call_user_func([$installer, $commandType]);
+                        } catch (\Exception $exception) {
+                            $event->getIO()->writeError(
+                                "Installer: $installerClass crash by exception with message: " .
+                                $exception->getMessage()
+                            );
+                        }
                     }
                 }
             }
@@ -156,11 +163,11 @@ class Command
      */
     private static function getContainer()
     {
-        if (!isset(Command::$container)) {
-            Command::$container = include 'config/container.php';
+        if (!isset(static::$container)) {
+            static::$container = include 'config/container.php';
         }
 
-        return Command::$container;
+        return static::$container;
     }
 
     /**
@@ -182,7 +189,7 @@ class Command
     public static function uninstall(Event $event)
     {
         $argv = $event->getArguments();
-        static::command($event, self::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
+        static::command($event, static::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
     }
 
     /**
@@ -194,10 +201,10 @@ class Command
         $argv = $event->getArguments();
 
         try {
-            static::command($event, self::REINSTALL, (isset($argv[0]) ? $argv[0] : null));
+            static::command($event, static::REINSTALL, (isset($argv[0]) ? $argv[0] : null));
         } catch (\Exception $exception) {
             $event->getIO()->writeError("Installing error: \n" . $exception->getMessage() . "\nUninstalling changes.");
-            static::command($event, self::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
+            static::command($event, static::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
         }
 
     }
