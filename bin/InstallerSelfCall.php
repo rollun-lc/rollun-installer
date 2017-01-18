@@ -12,7 +12,12 @@ require_once 'config/env_configurator.php';
 
 use Composer\IO\ConsoleIO;
 use rollun\installer\Install\InstallerInterface;
+use Symfony\Component\Console\Helper\DebugFormatterHelper;
+use Symfony\Component\Console\Helper\DescriptorHelper;
+use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\ProcessHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -21,7 +26,14 @@ $container = include 'config/container.php';
 /** init composer IO  */
 $consoleInput = new ArgvInput();
 $consoleOutput = new ConsoleOutput();
-$helperSet = new HelperSet();
+
+$helperSet = new HelperSet([
+    'question' => new QuestionHelper(),
+    'formatter' => new FormatterHelper(),
+    'descriptor' => new DescriptorHelper(),
+    'process' => new ProcessHelper(),
+    'debugFormatter' => new DebugFormatterHelper(),
+]);
 $composerIO = new ConsoleIO($consoleInput, $consoleOutput, $helperSet);
 
 if ($argc < 2) {
@@ -33,7 +45,7 @@ $className = $argv[1];
 if (class_exists($className)) {
     $reflectionClass = new ReflectionClass($className);
     if ($reflectionClass->implementsInterface(InstallerInterface::class) &&
-    $reflectionClass->isInstantiable()) {
+        $reflectionClass->isInstantiable()) {
         try {
             $installer = $reflectionClass->newInstance($container, $composerIO);
             $method = isset($argv[2]) ? $argv[2] : "install";
