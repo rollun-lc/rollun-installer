@@ -6,19 +6,17 @@
 По умолчанию будет запущен метод `install()`.
 
 ```bash
-    php bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer"
+    php vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer"
 ```
 
 ```bash
-    php bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" install
+    php vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" install
 ```
 
 ```bash
-    php bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" uninstall
+    php vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" uninstall
 ```
 
 ```bash
-    php bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" reinstall
+    php vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" reinstall
 ```
-
-Для использования данного скрипта, скопируйте его в дерикторию **bin** свого проекта.
