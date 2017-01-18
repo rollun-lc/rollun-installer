@@ -91,7 +91,7 @@ class Command
                     $srcPath = ($package === $event->getComposer()->getPackage()) ? realpath('src/') : $srcPath;
                     $installers = static::getInstallers($namespace, $srcPath);
                     foreach ($installers as $installerClass) {
-                        try{
+                        try {
                             $installer = new $installerClass(static::getContainer(), $event->getIO());
                             call_user_func([$installer, $commandType]);
                         } catch (\Exception $exception) {
@@ -116,10 +116,11 @@ class Command
     public static function getInstallers($namespace, $dir)
     {
         $installer = [];
-        try {
+
+        if (is_dir($dir)) {
             $iterator = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS |
                 FilesystemIterator::KEY_AS_PATHNAME);
-        } catch (\Exception $exception) {
+        } else {
             return $installer;
         }
 
@@ -142,15 +143,13 @@ class Command
 
                     $namespace_ = $namespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
                     $class = rtrim($namespace_, '\\') . '\\' . $item->getBasename('.php');
-                    try {
+                    if (class_exists($class)) {
                         $reflector = new \ReflectionClass($class);
                         if ($reflector->implementsInterface(InstallerInterface::class) &&
-                            !$reflector->isAbstract() && !$reflector->isInterface()
+                            $reflector->isInstantiable()
                         ) {
                             $installer[] = $reflector->getName();
                         }
-                    } catch (\ReflectionException $exception) {
-
                     }
                 }
             }
