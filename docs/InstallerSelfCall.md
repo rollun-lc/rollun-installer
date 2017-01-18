@@ -20,3 +20,5 @@
 ```bash
     php bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" reinstall
 ```
+
+Для использования данного скрипта, скопируйте его в дерикторию **bin** свого проекта.
