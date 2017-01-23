@@ -22,20 +22,20 @@ $paths = [
 ];
 
 foreach ($paths as $path) {
-    foreach ($files as $key => $file) {
-        $file = $path . DIRECTORY_SEPARATOR . $file;
-        if (file_exists($file)) {
-            if ($key === 'container') {
-                $container = require $file;
-            } else {
-                require_once $file;
-            }
-            unset($files[$key]);
-        }
+    $file = $path . DIRECTORY_SEPARATOR . $files['autoload'];
+    if (file_exists($file)) {
+        $file = realpath($path . DIRECTORY_SEPARATOR . $files['autoload']);
+        require $file;
+        $file = realpath($path . DIRECTORY_SEPARATOR . $files['env_configurator']);
+        require_once $file;
+        $file = realpath($path . DIRECTORY_SEPARATOR . $files['container']);
+        $container = require $file;
+        unset($files);
+        break;
     }
 }
 
-if (!empty($files)) {
+if (isset($files)) {
     echo "require file not found. ";
     exit(1);
 }
