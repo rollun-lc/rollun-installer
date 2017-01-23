@@ -16,13 +16,15 @@ $files = [
 ];
 
 $paths = [
+    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..',
     __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..',
     __DIR__ . DIRECTORY_SEPARATOR . '..',
     __DIR__,
+    getcwd(),
 ];
 
 foreach ($paths as $path) {
-    $file = $path . DIRECTORY_SEPARATOR . $files['autoload'];
+    $file = realpath($path . DIRECTORY_SEPARATOR . $files['autoload']);
     if (file_exists($file)) {
         $file = realpath($path . DIRECTORY_SEPARATOR . $files['autoload']);
         require $file;
@@ -36,7 +38,8 @@ foreach ($paths as $path) {
 }
 
 if (isset($files)) {
-    echo "require file not found. ";
+    echo "require file not found. \n";
+
     exit(1);
 }
 
