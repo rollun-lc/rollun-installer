@@ -7,9 +7,38 @@
  * Time: 10:40
  */
 
-chdir(dirname(__DIR__));
-require 'vendor/autoload.php';
-require_once 'config/env_configurator.php';
+$container = null;
+
+$files = [
+    'autoload' => 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php',
+    'env_configurator' => 'config' . DIRECTORY_SEPARATOR . 'env_configurator.php',
+    'container' => 'config' . DIRECTORY_SEPARATOR . 'container.php'
+];
+
+$paths = [
+    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..',
+    __DIR__ . DIRECTORY_SEPARATOR . '..',
+    __DIR__,
+];
+
+foreach ($paths as $path) {
+    foreach ($files as $key => $file) {
+        $file = $path . DIRECTORY_SEPARATOR . $file;
+        if (file_exists($file)) {
+            if ($key === 'container') {
+                $container = require $file;
+            } else {
+                require_once $file;
+            }
+            unset($files[$key]);
+        }
+    }
+}
+
+if (!empty($files)) {
+    echo "require file not found. ";
+    exit(1);
+}
 
 use Composer\IO\ConsoleIO;
 use rollun\installer\Install\InstallerInterface;
@@ -21,8 +50,6 @@ use Symfony\Component\Console\Helper\ProcessHelper;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
-
-$container = include 'config/container.php';
 
 /** init composer IO  */
 $consoleInput = new ArgvInput();
@@ -46,7 +73,8 @@ $className = $argv[1];
 if (class_exists($className)) {
     $reflectionClass = new ReflectionClass($className);
     if ($reflectionClass->implementsInterface(InstallerInterface::class) &&
-        $reflectionClass->isInstantiable()) {
+        $reflectionClass->isInstantiable()
+    ) {
         try {
             $installer = $reflectionClass->newInstance($container, $composerIO);
             $method = isset($argv[2]) ? $argv[2] : "install";
