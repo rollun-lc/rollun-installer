@@ -135,3 +135,7 @@ $answer = $io->ask("question");
 Для более детального изучения читайте [документацию](https://getcomposer.org/apidoc/master/Composer/IO/IOInterface.html).
 
 [Пример использования IO](https://github.com/zendframework/zend-expressive-skeleton/blob/fb1c4bb037ba56f15eff07a3e5f2dd4d81e9e02a/src/ExpressiveInstaller/OptionalPackages.php#L264)
+
+## Debug 
+
+Для убдобства отладки ваших Installers есть [скрипт `InstallerSelfCall`, ознакомится с ним можно тут](./InstallerSelfCall.md).
