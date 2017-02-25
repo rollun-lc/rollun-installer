@@ -6,7 +6,7 @@
  * Date: 27.12.16
  * Time: 4:02 PM
  */
-
+//Instalabe StaticInstalabe
 namespace rollun\installer;
 
 use Composer\IO\IOInterface;
