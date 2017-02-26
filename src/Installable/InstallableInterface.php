@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: victorsecuring
@@ -8,9 +9,9 @@
 
 namespace rollun\installer\Installable;
 
-
-interface StaticInstallable
+interface InstallableInterface
 {
+
     /**
      * Make object self install. Non context bind.
      * @param array $option
