@@ -31,5 +31,5 @@ interface InstallableInterface
      * @param array $option
      * @return bool
      */
-    static public function isInstall(array $option = []);
+    static public function isInstalled(array $option = []);
 }
