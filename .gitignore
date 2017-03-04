@@ -12,6 +12,7 @@ composer.phar
 
 # User-specific stuff:
 .idea/workspace.xml
+composer.lock
 .idea/*
 
 # Sensitive or high-churn files:
