@@ -15,6 +15,7 @@ use Composer\Script\Event;
 use FilesystemIterator;
 use Interop\Container\ContainerInterface;
 use RecursiveDirectoryIterator;
+use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
 
 require_once 'config/env_configurator.php';
@@ -166,6 +167,7 @@ class Command
     {
         if (!isset(static::$container)) {
             static::$container = include 'config/container.php';
+            InsideConstruct::setContainer(static::$container);
         }
 
         return static::$container;
