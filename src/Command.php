@@ -66,21 +66,42 @@ class Command
      */
     protected static function command(Event $event, $commandType, $libName = null)
     {
+        //Key => namespace
+        //value  => installer
+        $allInstallers = [];
+
         //founds dep installer only if app
         $composer = $event->getComposer();
         $localRep = $composer->getRepositoryManager()->getLocalRepository();
         //get all dep lis (include dependency of dependency)
         $dependencies = $localRep->getPackages();
         foreach ($dependencies as $dependency) {
-            static::callInstallers($dependency, $commandType, $event, $libName);
+            $depInstallers = static::getInstallers($dependency, $event, $libName);
+            $allInstallers = array_merge($allInstallers, $depInstallers);
         }
-        static::callInstallers($composer->getPackage(), $commandType, $event, $libName);
+        $allInstallers = array_merge($allInstallers,
+            static::getInstallers($composer->getPackage(), $event, $libName));
+
+        $cliIO  = $event->getIO();
+
+        /** @var InstallerInterface $installer */
+        foreach ($allInstallers as $name => $installer) {
+            $description = $installer->getDescription();
+            $str = $name . ":\n" . $description;
+            $cliIO->write($str, true);
+        }
     }
 
-    /**/
 
-    protected static function callInstallers(PackageInterface $package, $commandType, Event $event, $libName = null)
+    /**
+     * @param PackageInterface $package
+     * @param Event $event
+     * @param null $libName
+     * @return array
+     */
+    protected static function getInstallers(PackageInterface $package, Event $event, $libName = null)
     {
+        $installersObj = [];
         $autoload = $package->getAutoload();
         if (!isset($libName) || $package->getPrettyName() == $libName) {
             if (isset($autoload['psr-4'])) {
@@ -91,11 +112,12 @@ class Command
                         $package->getPrettyName() . DIRECTORY_SEPARATOR . $src;
                     $srcPath = ($package === $event->getComposer()->getPackage()) ? realpath('src/') : $srcPath;
                     if (is_dir($srcPath)) {
-                        $installers = static::getInstallers($namespace, $srcPath);
+                        $installers = static::findInstallers($namespace, $srcPath);
                         foreach ($installers as $installerClass) {
                             try {
                                 $installer = new $installerClass(static::getContainer(), $event->getIO());
-                                call_user_func([$installer, $commandType]);
+                                $installersObj[$installerClass] = $installer;
+                                //call_user_func([$installer, $commandType]);
                             } catch (\Exception $exception) {
                                 $event->getIO()->writeError(
                                     "Installer: $installerClass crash by exception with message: " .
@@ -107,6 +129,7 @@ class Command
                 }
             }
         }
+        return $installersObj;
     }
 
     /**
@@ -114,9 +137,9 @@ class Command
      * dir - for search Installer automate
      * @param $namespace
      * @param string $dir
-     * @return InstallerInterface[]
+     * @return string[]
      */
-    public static function getInstallers($namespace, $dir)
+    protected static function findInstallers($namespace, $dir)
     {
         $installer = [];
 
@@ -132,7 +155,7 @@ class Command
             /** @var $item RecursiveDirectoryIterator */
             if (!preg_match('/^(\.)|(vendor)/', $item->getFilename())) {
                 if ($item->isDir()) {
-                    $installer = array_merge($installer, static::getInstallers($namespace, $item->getPathname()));
+                    $installer = array_merge($installer, static::findInstallers($namespace, $item->getPathname()));
                 } elseif (preg_match('/Installer/', $item->getFilename())) {
                     //get path to lib
                     $match = [];
@@ -159,7 +182,6 @@ class Command
         }
         return $installer;
     }
-
     /**
      * @return ContainerInterface
      */
