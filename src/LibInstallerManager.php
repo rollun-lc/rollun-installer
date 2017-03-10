@@ -37,7 +37,6 @@ class LibInstallerManager
     /** @var  string */
     protected $src;
 
-
     /**
      * LibInstallerManager constructor.
      * @param PackageInterface $package
@@ -51,6 +50,7 @@ class LibInstallerManager
         $this->package = $package;
         $this->container = $container;
         $this->cliIO = $cliIO;
+        $this->installers = [];
 
         $autoload = $package->getAutoload();
         if (isset($autoload['psr-4'])) {
@@ -59,39 +59,34 @@ class LibInstallerManager
             if (isset($src)) {
                 $this->src = $src;
             } else if (isset($autoload['psr-4'][$this->rootNamespace])) {
+                $dir = is_string($autoload['psr-4'][$this->rootNamespace]) ?
+                    $autoload['psr-4'][$this->rootNamespace] :
+                    $autoload['psr-4'][$this->rootNamespace][0];
                 $this->src = realpath('vendor') . DIRECTORY_SEPARATOR .
                     $package->getPrettyName() . DIRECTORY_SEPARATOR .
-                    $autoload['psr-4'][$this->rootNamespace];
+                    $dir;
             }
             if (!isset($this->src) || !is_string($this->src) || !is_dir($this->src)) {
-                throw new \RuntimeException("Can't find src for package: " . $this->package->getPrettyName());
+                $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
+            } else {
+                $installers = $this->findInstaller($this->src);
+                foreach ($installers as $installerClass) {
+                    try {
+                        /** @var  InstallerAbstract $installer */
+                        $installer = new $installerClass($this->container, $this->cliIO);
+                        $this->installers[$installerClass] = $installer;
+                    } catch (\Exception $exception) {
+                        $this->cliIO->writeError(
+                            "Installer: $installerClass crash by exception with message: " .
+                            $exception->getMessage()
+                        );
+                    }
+                }
             }
         } else {
-            throw new \RuntimeException("Lib don't implements psr-4");
-        }
-
-        $installers = $this->findInstaller($this->src);
-        foreach ($installers as $installerClass) {
-            try {
-                /** @var  InstallerAbstract $installer */
-                $installer = new $installerClass($this->container, $this->cliIO);
-                $this->installers[$installerClass] = $installer;
-            } catch (\Exception $exception) {
-                $this->cliIO->writeError(
-                    "Installer: $installerClass crash by exception with message: " .
-                    $exception->getMessage()
-                );
-            }
+            //$this->cliIO->writeError("Lib don't implements psr-4");
         }
     }
-    /**
-     * @return PackageInterface
-     */
-    public function getPackage()
-    {
-        return $this->package;
-    }
-
 
     /**
      * lib dir
@@ -141,6 +136,19 @@ class LibInstallerManager
             }
         }
         return $installer;
+    }
+
+    public function isSupported()
+    {
+        return !empty($this->installers);
+    }
+
+    /**
+     * @return PackageInterface
+     */
+    public function getPackage()
+    {
+        return $this->package;
     }
 
     /**
