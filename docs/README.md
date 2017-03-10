@@ -89,25 +89,16 @@
  ```json
    {
        "scripts": {
-          "lib-install": "rollun\\installer\\Commands::install",
-          "lib-uninstall": "rollun\\installer\\Commands::uninstall",
-          "lib-reinstall": "rollun\\installer\\Commands::reinstall"
+              "lib": "rollun\\installer\\Command::command"
         }
    }
  ```
-> Без обромляющих символов `{` и `}`. И замените `zaboy` своим namespace
-
+> Без обромляющих символов `{` и `}`. 
 Теперь после того как все предыдущее шаги были сделаны, вы можете используя команды 
-* `composer lib-install` - Запускать инсталяторы для настрройки окружения. 
-* `composer lib-uninstall` - Удалять настроки окружения.
-* `composer lib-reinstall` - Переустанавливать окружения.  
+* `composer lib install` - Запускать инсталяторы для настрройки окружения. 
+* `composer lib uninstall` - Удалять настроки окружения.
 
-
-Так же можно неапрямую указывать из кукой библиотеке мы хотим запускать установщики.
-Для этого передать имя библиотеки как первый аргумет команды - 
-* `composer lib-install rollun-com/rollun-datastore` 
-* `composer lib-uninstall rollun-com/rollun-datastore`
-* `composer lib-reinstall rollun-com/rollun-datastore`
+Так же 
 
 ## Composer\IO\IOInterface
 
