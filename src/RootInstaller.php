@@ -15,6 +15,7 @@ use Composer\Repository\WritableRepositoryInterface;
 use FilesystemIterator;
 use Interop\Container\ContainerInterface;
 use RecursiveDirectoryIterator;
+use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
 use Zend\ServiceManager\ServiceManager;
 
@@ -39,12 +40,12 @@ class RootInstaller
     /** @var  LibInstallerManager[] */
     protected $libInstallerManagers;
 
-    public function __construct(Composer $composer, ContainerInterface $container, ConsoleIO $cliIO)
+    public function __construct(Composer $composer, ConsoleIO $cliIO)
     {
         $this->composer = $composer;
-        $this->container = $container;
         $this->cliIO = $cliIO;
         $this->installers = [];
+        $this->reloadContainer();
         $this->initAllInstallers();
     }
 
@@ -60,13 +61,27 @@ class RootInstaller
 
         foreach ($dependencies as $dependency) {
             $libInstallManager = new LibInstallerManager($dependency, $this->container, $this->cliIO);
-            if($libInstallManager->isSupported()){
-                $libInstallerManagers[] = $libInstallManager;
+            if ($libInstallManager->isSupported()) {
+                $this->libInstallerManagers[] = $libInstallManager;
                 $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
             }
         }
-        $libInstallerManagers[] = $libInstallManager = new LibInstallerManager($this->composer->getPackage(), $this->container, $this->cliIO, realpath("src/"));
+        $this->libInstallerManagers[] = $libInstallManager = new LibInstallerManager($this->composer->getPackage(), $this->container, $this->cliIO, realpath("src/"));
         $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
+    }
+
+    /**
+     * Call install
+     * @param string $lang
+     */
+    public function install($lang = null)
+    {
+        $lang = !isset($lang) ? constant("LANG") : $lang;
+        $this->writeDescriptions($lang);
+        $installers = $this->selectInstaller();
+        foreach ($installers as $installerName) {
+            $this->callInstaller($installerName);
+        }
     }
 
     /**
@@ -75,10 +90,7 @@ class RootInstaller
     protected function writeDescriptions($lang)
     {
         foreach ($this->installers as $name => $installer) {
-            if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
-                $name = '\033[0;31m' . $name . '\033[0m';
-            }
-            $this->cliIO->write($name . ":\n" . $installer->getDescription($lang));
+            $this->cliIO->write($name . ":\n" . $installer->getDescription(substr($lang, 0, 2)));
         }
     }
 
@@ -90,16 +102,22 @@ class RootInstaller
     {
         $defaultInstaller = [];
         $selectInstaller = array_filter($this->installers, function (InstallerInterface $installer) {
-            return $installer->isInstall();
+            return !$installer->isInstall();
         });
         foreach ($selectInstaller as $name => $installer) {
             if ($installer->isDefaultOn()) {
                 $defaultInstaller[] = $name;
             }
         }
-        if(!empty($selectInstaller)) {
-            $result = $this->cliIO->select("Select installer who ben call.", array_keys($selectInstaller), implode(",", $defaultInstaller));
-            return explode(",", $result);
+        $installersName = array_keys($selectInstaller);
+        if (!empty($selectInstaller)) {
+            $selectedInstaller = [];
+            $selectedInstallerKey = $this->cliIO->select("Select installer who ben call.", $installersName, implode(",", $defaultInstaller));
+            $selectedInstallerKey = explode(",", $selectedInstallerKey);
+            foreach ($selectedInstallerKey as $key) {
+                $selectedInstaller[] = $installersName[$key];
+            }
+            return $selectedInstaller;
         }
         return [];
     }
@@ -119,7 +137,7 @@ class RootInstaller
                 }
                 $config = $installer->install();
                 $this->generateConfig($config, $installerName);
-                $this->reloadConfig();
+                $this->reloadContainer();
             }
         } else {
             throw new \RuntimeException("Installer with name $installerName not found.");
@@ -139,9 +157,11 @@ class RootInstaller
                 break;
             }
         }
-        $fileName = realpath('config/autoload/') . $libName . '.' . basename($installerName) . ".dist.local.php";
+        $match = [];
+        $configName = preg_match('/([\w]+)Installer$/', $installerName, $match) ? $match[1] : "";
+        $fileName = realpath('config/autoload/') . DIRECTORY_SEPARATOR . $libName . $configName . "dist.local.php";
         $file = fopen($fileName, "w");
-        $str = "<?php\nreturn " . $this->arrayToString($config);
+        $str = "<?php\nreturn " . $this->arrayToString($config) . ";";
         fwrite($file, $str);
     }
 
@@ -159,25 +179,11 @@ class RootInstaller
             } else {
                 $str .= "'" . $item . "'";
             }
-            $str .= ",\n";
+            $str .= ",";
         }
-        $str = rtrim($str, ",\n");
-        $str .= "\n];";
+        $str = rtrim($str, ",");
+        $str .= "]";
         return $str;
-    }
-
-    /**
-     * Call install
-     * @param string $lang
-     */
-    public function install($lang = null)
-    {
-        $lang = !isset($lang) ? constant("LANG") : $lang;
-        $this->writeDescriptions($lang);
-        $installers = $this->selectInstaller();
-        foreach ($installers as $installerName){
-            $this->callInstaller($installerName);
-        }
     }
 
     /**
@@ -195,9 +201,10 @@ class RootInstaller
     /**
      * reload config in SM
      */
-    private function reloadConfig()
+    private function reloadContainer()
     {
-        $config = require 'config/config.php';
-        $this->container->setService('config', $config);
+
+        $this->container = include 'config/container.php';
+        InsideConstruct::setContainer($this->container);
     }
 }

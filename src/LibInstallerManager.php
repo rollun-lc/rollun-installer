@@ -111,7 +111,7 @@ class LibInstallerManager
             if (!preg_match('/^(\.)|(vendor)/', $item->getFilename())) {
                 if ($item->isDir()) {
                     $installer = array_merge($installer, $this->findInstaller($item->getPathname()));
-                } elseif (preg_match('/Installer.php^/', $item->getFilename())) {
+                } elseif (preg_match('/Installer/', $item->getFilename())) {
                     //get path to lib
                     $match = [];
                     $path = preg_match('/\/vendor\/([\w-\/]+)/', $item->getPath(), $match)

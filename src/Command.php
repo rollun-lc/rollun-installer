@@ -59,30 +59,17 @@ class Command
 
         /** @noinspection PhpParamsInspection */
         try {
-            $rootInstaller = new RootInstaller($event->getComposer(), static::getContainer(), $event->getIO());
+            $rootInstaller = new RootInstaller($event->getComposer(), $event->getIO());
             if(in_array('install', $argv)){
                 $rootInstaller->install($lang);
             } else if (in_array('uninstall', $argv)){
-                $rootInstaller->install();
+                $rootInstaller->uninstall();
             } else {
                 $event->getIO()->writeError("usage:\n composer lib [install\\uninstall] [-l={language}]");
             }
         } catch (\Exception $e) {
             $event->getIO()->writeError($e->getMessage());
         }
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    private static function getContainer()
-    {
-        if (!isset(static::$container)) {
-            static::$container = include 'config/container.php';
-            InsideConstruct::setContainer(static::$container);
-        }
-
-        return static::$container;
     }
 
     /**
