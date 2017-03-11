@@ -42,135 +42,34 @@ class Command
     private static $container = null;
 
     /**
-     * @param Event $event
-     * @return void
-     */
-    public static function install(Event $event)
-    {
-        $argv = $event->getArguments();
-        try {
-            static::command($event, static::INSTALL, (isset($argv[0]) ? $argv[0] : null));
-        } catch (\Exception $exception) {
-            $event->getIO()->writeError("Installing error: \n" . $exception->getMessage() . "\nUninstalling changes.");
-            static::command($event, static::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
-        }
-    }
-
-    /**
      * do command for include installers.
      * Composer Event - for get dependencies and IO
      * @param Event $event
-     * Type of command doю
-     * @param $commandType
-     * @param null $libName
      */
-    protected static function command(Event $event, $commandType, $libName = null)
+    public static function command(Event $event)
     {
-        //founds dep installer only if app
-        $composer = $event->getComposer();
-        $localRep = $composer->getRepositoryManager()->getLocalRepository();
-        //get all dep lis (include dependency of dependency)
-        $dependencies = $localRep->getPackages();
-        foreach ($dependencies as $dependency) {
-            static::callInstallers($dependency, $commandType, $event, $libName);
-        }
-        static::callInstallers($composer->getPackage(), $commandType, $event, $libName);
-    }
+        /*
+         * usage: lib
+         *  [ install | uninstall ]
+         *  [ -l= ]
+         */
+        $argv = $event->getArguments();
+        $match = [];
+        $lang = preg_match('/-l=([\w]+)\|?/', implode("|", $argv), $match) ? $match[1] : null;
 
-    /**/
-
-    protected static function callInstallers(PackageInterface $package, $commandType, Event $event, $libName = null)
-    {
-        $autoload = $package->getAutoload();
-        if (!isset($libName) || $package->getPrettyName() == $libName) {
-            if (isset($autoload['psr-4'])) {
-                $namespace = array_keys($autoload['psr-4'])[0];
-                $src = $autoload['psr-4'][$namespace];
-                if (!empty($src) && is_string($src)) {
-                    $srcPath = realpath('vendor') . DIRECTORY_SEPARATOR .
-                        $package->getPrettyName() . DIRECTORY_SEPARATOR . $src;
-                    $srcPath = ($package === $event->getComposer()->getPackage()) ? realpath('src/') : $srcPath;
-                    if (is_dir($srcPath)) {
-                        $installers = static::getInstallers($namespace, $srcPath);
-                        foreach ($installers as $installerClass) {
-                            try {
-                                $installer = new $installerClass(static::getContainer(), $event->getIO());
-                                call_user_func([$installer, $commandType]);
-                            } catch (\Exception $exception) {
-                                $event->getIO()->writeError(
-                                    "Installer: $installerClass crash by exception with message: " .
-                                    $exception->getMessage()
-                                );
-                            }
-                        }
-                    }
-                }
+        /** @noinspection PhpParamsInspection */
+        try {
+            $rootInstaller = new RootInstaller($event->getComposer(), $event->getIO());
+            if(in_array('install', $argv)){
+                $rootInstaller->install($lang);
+            } else if (in_array('uninstall', $argv)){
+                $rootInstaller->uninstall();
+            } else {
+                $event->getIO()->writeError("usage:\n composer lib [install\\uninstall] [-l={language}]");
             }
+        } catch (\Exception $e) {
+            $event->getIO()->writeError($e->getMessage());
         }
-    }
-
-    /**
-     * return array with Install class for lib;
-     * dir - for search Installer automate
-     * @param $namespace
-     * @param string $dir
-     * @return InstallerInterface[]
-     */
-    public static function getInstallers($namespace, $dir)
-    {
-        $installer = [];
-
-        if (is_dir($dir)) {
-            $iterator = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS |
-                FilesystemIterator::KEY_AS_PATHNAME);
-        } else {
-            return $installer;
-        }
-
-        foreach ($iterator as $item) {
-            //Save only class who implement InstallerInterface and has Installer in name
-            /** @var $item RecursiveDirectoryIterator */
-            if (!preg_match('/^(\.)|(vendor)/', $item->getFilename())) {
-                if ($item->isDir()) {
-                    $installer = array_merge($installer, static::getInstallers($namespace, $item->getPathname()));
-                } elseif (preg_match('/Installer/', $item->getFilename())) {
-                    //get path to lib
-                    $match = [];
-                    $path = preg_match('/\/vendor\/([\w-\/]+)/', $item->getPath(), $match)
-                    && isset($match[1]) ? $match[1] : $item->getPath();
-
-                    //get path to src
-                    $match = [];
-                    $path = preg_match('/\/src\/([\w-\/]+)/', $path, $match)
-                    && isset($match[1]) ? $match[1] : null;
-
-                    $namespace_ = $namespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
-                    $class = rtrim($namespace_, '\\') . '\\' . $item->getBasename('.php');
-                    if (class_exists($class)) {
-                        $reflector = new \ReflectionClass($class);
-                        if ($reflector->implementsInterface(InstallerInterface::class) &&
-                            $reflector->isInstantiable()
-                        ) {
-                            $installer[] = $reflector->getName();
-                        }
-                    }
-                }
-            }
-        }
-        return $installer;
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    private static function getContainer()
-    {
-        if (!isset(static::$container)) {
-            static::$container = include 'config/container.php';
-            InsideConstruct::setContainer(static::$container);
-        }
-
-        return static::$container;
     }
 
     /**
@@ -183,33 +82,6 @@ class Command
         $className = $trace[1]['class'];
         $reflectionClass = new \ReflectionClass($className);
         return preg_match('/\/vendor\//', $reflectionClass->getFileName()) == 1;
-    }
-
-    /**
-     * @param Event $event
-     * @return void
-     */
-    public static function uninstall(Event $event)
-    {
-        $argv = $event->getArguments();
-        static::command($event, static::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
-    }
-
-    /**
-     * @param Event $event
-     * @return void
-     */
-    public static function reinstall(Event $event)
-    {
-        $argv = $event->getArguments();
-
-        try {
-            static::command($event, static::REINSTALL, (isset($argv[0]) ? $argv[0] : null));
-        } catch (\Exception $exception) {
-            $event->getIO()->writeError("Installing error: \n" . $exception->getMessage() . "\nUninstalling changes.");
-            static::command($event, static::UNINSTALL, (isset($argv[0]) ? $argv[0] : null));
-        }
-
     }
 
     public static function getPublicDir()

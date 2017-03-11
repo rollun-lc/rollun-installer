@@ -24,7 +24,7 @@ interface InstallerInterface
     //TODO: init and re must make clean if during installation exception was obtained.
     /**
      * install
-     * @return void
+     * @return array
      */
     public function install();
 
@@ -36,8 +36,28 @@ interface InstallerInterface
     public function uninstall();
 
     /**
-     * Make clean and install.
-     * @return void
+     * Return true if install, or false else
+     * @return bool
      */
-    public function reinstall();
+    public function isInstall();
+
+    /**
+     * Return true if recommended to install.
+     * @return bool
+     */
+    public function isDefaultOn();
+
+    /**
+     * Return string with description of installable functional.
+     * @param string $lang; set select language for description getted.
+     * @return string
+     */
+    public function getDescription($lang = "en");
+
+    /**
+     * Return array of dependency installers.
+     * They be call before current installers.
+     * @return string[]
+     */
+    public function getDependencyInstallers();
 }

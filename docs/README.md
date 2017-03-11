@@ -6,12 +6,21 @@
 Данные реализации обязаны содержать в себе суфикс `Installer`.
 
 Так же существует `InstallerAbstract` абстрактная реализация интерфейса. 
-При ее использоваии вам нужно реализовать метды `install` и `uninstall`.
+При ее использоваии вам нужно реализовать обязательные метды `install`, `uninstall`, `isInstall`, `getDescription`.
+* `install` - Установить данный инсталлер, 
+и вернет конфиг который нужно добавить для работы данного инсталлера. 
+* `uninstall` - Удалить все созданное инсталятором.  
+* `isInstall` - Возвращяет `true` в случае если данный инсталлер был установлен, и `false` в ином случае.
+* `getDescription` - Выводит на консоль описание данного инсталлера. 
+Есть еще перечень дополнительные методов:
+* `isDefaultOn` - Возвращает `true` в случае если данный инсталлер рекомендован к установке.
+* `getDependencyInstallers` - Возвращает список зависимых инсталлеров для данного инсталлера.
+> Инсталлера из данного списка будут запущены раньше основного инсталлера.
 
 При запуске инсталяции, будут найдены все подобные инсталлеры в порядке **сверху вниз**.
 > Учитывайте это при напсании своих инсталлеров если вам важен порядок их вызова. 
 
-Данная библиотека позволяет настраивать окружение для зависимых библиотек, но не гарантирует порядок выполнения данной настройки.
+Данная библиотека позволяет настраивать окружение для зависимых библиотек.
 
 Сначало будут обрабатыватся инсталлеры зависимых библиотек, а в конце ваши.
 
@@ -20,17 +29,31 @@
 Пример инсталлера который создает требуемый для приложения файл
 
 ```php
+<?php
+    /**
+     * Created by PhpStorm.
+     * User: victorsecuring
+     * Date: 30.12.16
+     * Time: 2:16 PM
+     */
     
-    namespace zaboy\logger;
-    use Composer\IO\IOInterface;
-    use Interop\Container\ContainerInterface;
-    use zaboy\installer\Command;
-    use zaboy\installer\Install\InstallerAbstract;
+    namespace rollun\logger;
+    
     class Installer extends InstallerAbstract
     {
         const LOGS_DIR = 'logs';
-        const LOGS_FILE = 'logs.txt';
-        
+        const LOGS_FILE = 'logs.csv';
+    
+        /**
+         * Make clean and install.
+         * @return void
+         */
+        public function reinstall()
+        {
+            $this->uninstall();
+            $this->install();
+        }
+    
         /**
          * Clean all installation
          * @return void
@@ -38,33 +61,77 @@
         public function uninstall()
         {
             if (constant('APP_ENV') !== 'dev') {
-                $this->ioComposer->write("constant('APP_ENV') !== 'dev' It has did nothing");
-                exit;
-            }
-            $publicDir = Command::getPublicDir();
-            if (file_exists($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR . DIRECTORY_SEPARATOR . self::LOGS_FILE)) {
-                unlink($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR . DIRECTORY_SEPARATOR . self::LOGS_FILE);
-            }
-            if (is_dir($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR)) {
-                rmdir($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR);
+                $this->consoleIO->write('constant("APP_ENV") !== "dev" It has did nothing');
+            } else {
+                $publicDir = Command::getDataDir();
+                if (file_exists($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR . DIRECTORY_SEPARATOR . self::LOGS_FILE)) {
+                    unlink($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR . DIRECTORY_SEPARATOR . self::LOGS_FILE);
+                }
+                if (is_dir($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR)) {
+                    rmdir($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR);
+                }
             }
         }
+    
         /**
          * install
-         * @return void
+         * @return array
          */
         public function install()
         {
             if (constant('APP_ENV') !== 'dev') {
-                $this->ioComposer->write("constant('APP_ENV') !== 'dev' It has did nothing");
-                exit;
+                $this->consoleIO->write('constant("APP_ENV") !== "dev" It has did nothing');
+            } else {
+                $dir = Command::getDataDir() . DIRECTORY_SEPARATOR . self::LOGS_DIR;
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+                $file = $dir . DIRECTORY_SEPARATOR . self::LOGS_FILE;
+                fopen($file, "w");
+                file_put_contents($file, "id;level;message\n");
+                return [
+                    'dependencies' => [
+                        'factories' => [
+                            FileLogWriter::class => FileLogWriterFactory::class,
+                            Logger::class => LoggerFactory::class,
+                        ],
+                        'aliases' => [
+                            LogWriterInterface::DEFAULT_LOG_WRITER_SERVICE => FileLogWriter::class,
+                            Logger::DEFAULT_LOGGER_SERVICE => Logger::class,
+                        ]
+                    ]
+                ];
             }
-            $publicDir = Command::getPublicDir();
-            mkdir($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR);
-            fopen($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR . DIRECTORY_SEPARATOR . self::LOGS_FILE, "w");
+        }
+    
+        public function isInstall()
+        {
+            $publicDir = Command::getDataDir();
+            $result = file_exists($publicDir . DIRECTORY_SEPARATOR . self::LOGS_DIR . DIRECTORY_SEPARATOR . self::LOGS_FILE);
+            $result &= $this->container->has(LogWriterInterface::DEFAULT_LOG_WRITER_SERVICE);
+            $result &= $this->container->has(Logger::DEFAULT_LOGGER_SERVICE);
+            return $result;
+        }
+    
+        public function isDefaultOn()
+        {
+            return true;
+        }
+    
+        public function getDescription($lang = "en")
+        {
+            switch ($lang) {
+                case "ru":
+                    $description = "Предоставяляет обьект logger позволяющий писать сообщения в лог.\n" .
+                        "LoggerException которое позволяет записывать в лог возникшее исключение, а так же предшествующее ему.";
+                    break;
+                default:
+                    $description = "Does not exist.";
+            }
+            return $description;
         }
     }
-    
+    ?>
 ```
 
 ## Переменные окружения
@@ -89,25 +156,16 @@
  ```json
    {
        "scripts": {
-          "lib-install": "rollun\\installer\\Commands::install",
-          "lib-uninstall": "rollun\\installer\\Commands::uninstall",
-          "lib-reinstall": "rollun\\installer\\Commands::reinstall"
+              "lib": "rollun\\installer\\Command::command"
         }
    }
  ```
-> Без обромляющих символов `{` и `}`. И замените `zaboy` своим namespace
-
+> Без обромляющих символов `{` и `}`. 
 Теперь после того как все предыдущее шаги были сделаны, вы можете используя команды 
-* `composer lib-install` - Запускать инсталяторы для настрройки окружения. 
-* `composer lib-uninstall` - Удалять настроки окружения.
-* `composer lib-reinstall` - Переустанавливать окружения.  
-
-
-Так же можно неапрямую указывать из кукой библиотеке мы хотим запускать установщики.
-Для этого передать имя библиотеки как первый аргумет команды - 
-* `composer lib-install rollun-com/rollun-datastore` 
-* `composer lib-uninstall rollun-com/rollun-datastore`
-* `composer lib-reinstall rollun-com/rollun-datastore`
+* `composer lib install` - Запускать инсталяторы для настрройки окружения. 
+* `composer lib uninstall` - Удалять настроки окружения.
+Так же существует необязательный параметр `-l=` которым можно указать язык на котором будет выводится описание 
+* `composer lib install -l=ru` - Запускать инсталяторы, описание выводить на русском языке.
 
 ## Composer\IO\IOInterface
 

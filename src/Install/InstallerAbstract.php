@@ -18,7 +18,7 @@ abstract class InstallerAbstract implements InstallerInterface
     protected $container;
 
     /** @var IOInterface  */
-    protected $io;
+    protected $consoleIO;
 
     /**
      * Installer constructor.
@@ -28,17 +28,26 @@ abstract class InstallerAbstract implements InstallerInterface
      */
     public function __construct(ContainerInterface $container, IOInterface $ioComposer)
     {
-        $this->io = $ioComposer;
+        $this->consoleIO = $ioComposer;
         $this->container = $container;
     }
 
-    /**
-     * Make clean and install.
-     * @return void
-     */
-    public function reinstall()
+    public function isDefaultOn()
     {
-        $this->uninstall();
-        $this->install();
+        return false;
+    }
+
+    public function getDependencyInstallers()
+    {
+        return [];
+    }
+
+    /**
+     * Return true if install, or false else
+     * @return bool
+     */
+    public function isInstall()
+    {
+        return $this->consoleIO->askConfirmation("You have gone through all the steps to install this " . __CLASS__ . " [Yes/No]", false);
     }
 }
