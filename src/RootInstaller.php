@@ -50,6 +50,16 @@ class RootInstaller
     }
 
     /**
+     * reload config in SM
+     */
+    private function reloadContainer()
+    {
+
+        $this->container = include 'config/container.php';
+        InsideConstruct::setContainer($this->container);
+    }
+
+    /**
      * init All installers
      */
     protected function initAllInstallers()
@@ -112,8 +122,10 @@ class RootInstaller
         $installersName = array_keys($selectInstaller);
         if (!empty($selectInstaller)) {
             $selectedInstaller = [];
-            $selectedInstallerKey = $this->cliIO->select("Select installer who ben call.", $installersName, implode(",", $defaultInstaller));
-            $selectedInstallerKey = explode(",", $selectedInstallerKey);
+            $selectedInstallerKey = $this->cliIO->select("Select installer who ben call.", $installersName, implode(",", $defaultInstaller), false, 'Value "%s" is invalid', true);
+            if(is_string($selectedInstallerKey)) {
+                $selectedInstallerKey = explode(",", $selectedInstallerKey);
+            }
             foreach ($selectedInstallerKey as $key) {
                 $selectedInstaller[] = $installersName[$key];
             }
@@ -196,15 +208,5 @@ class RootInstaller
                 $installer->uninstall();
             }
         }
-    }
-
-    /**
-     * reload config in SM
-     */
-    private function reloadContainer()
-    {
-
-        $this->container = include 'config/container.php';
-        InsideConstruct::setContainer($this->container);
     }
 }
