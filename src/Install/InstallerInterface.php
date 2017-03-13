@@ -55,6 +55,8 @@ interface InstallerInterface
     public function getDescription($lang = "en");
 
     /**
+     * Return array of dependency installers.
+     * They be call before current installers.
      * @return string[]
      */
     public function getDependencyInstallers();
