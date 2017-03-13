@@ -185,7 +185,9 @@ class RootInstaller
     {
         $str = "[";
         foreach ($array as $key => $item) {
-            $str .= "'$key' => ";
+            if (!is_integer($key)) {
+                $str .= "'$key' => ";
+            }
             if (is_array($item)) {
                 $str .= $this->arrayToString($item);
             } else {
