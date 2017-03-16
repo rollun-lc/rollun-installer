@@ -60,4 +60,11 @@ interface InstallerInterface
      * @return string[]
      */
     public function getDependencyInstallers();
+
+    /**
+     * Set container.
+     * @param ContainerInterface $container
+     * @return void
+     */
+    public function setContainer(ContainerInterface $container);
 }
