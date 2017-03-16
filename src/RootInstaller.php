@@ -57,6 +57,13 @@ class RootInstaller
 
         $this->container = include 'config/container.php';
         InsideConstruct::setContainer($this->container);
+
+        foreach ($this->installers as $installer) {
+            $installer->setContainer($this->container);
+        }
+        foreach ($this->libInstallerManagers as $libInstallerManager) {
+            $libInstallerManager->setContainer($this->container);
+        }
     }
 
     /**

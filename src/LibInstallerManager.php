@@ -172,4 +172,12 @@ class LibInstallerManager
         return $this->rootNamespace;
     }
 
+    /**
+     * @param ContainerInterface $container
+     */
+    public function setContainer($container)
+    {
+        $this->container = $container;
+    }
+
 }
