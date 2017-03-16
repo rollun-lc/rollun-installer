@@ -45,6 +45,7 @@ class RootInstaller
         $this->composer = $composer;
         $this->cliIO = $cliIO;
         $this->installers = [];
+        $this->libInstallerManagers = [];
         $this->reloadContainer();
         $this->initAllInstallers();
     }
