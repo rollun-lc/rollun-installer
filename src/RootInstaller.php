@@ -156,8 +156,10 @@ class RootInstaller
                     $this->callInstaller($depInstaller);
                 }
                 $config = $installer->install();
-                $this->generateConfig($config, $installerName);
-                $this->reloadContainer();
+                if(!empty($config)) {
+                    $this->generateConfig($config, $installerName);
+                    $this->reloadContainer();
+                }
             }
         } else {
             throw new \RuntimeException("Installer with name $installerName not found.");
@@ -165,11 +167,11 @@ class RootInstaller
     }
 
     /**
-     * @param array $config
-     * @param $installerName
+     * Get config file name.
+     * @param string $installerName
+     * @return string
      */
-    protected function generateConfig(array $config, $installerName)
-    {
+    protected function getConfigFileName($installerName){
         $libName = "";
         foreach ($this->libInstallerManagers as $installerManager) {
             if ($installerManager->getInstaller($installerName) !== null) {
@@ -179,9 +181,18 @@ class RootInstaller
         }
         $match = [];
         $configName = preg_match('/([\w]+)Installer$/', $installerName, $match) ? $match[1] : "";
-        $fileName = realpath('config/autoload/') . DIRECTORY_SEPARATOR . $libName . $configName . "dist.local.php";
+        $configName = rtrim($configName, '.');
+        return realpath('config/autoload/') . DIRECTORY_SEPARATOR . $libName . $configName . ".dist.local.php";
+    }
+    /**
+     * @param array $config
+     * @param $installerName
+     */
+    protected function generateConfig(array $config, $installerName)
+    {
+        $fileName = $this->getConfigFileName($installerName);
         $file = fopen($fileName, "w");
-        $str = "<?php\nreturn " . $this->arrayToString($config) . ";";
+        $str = "<?php\nreturn\n" . $this->arrayToString($config) . ";";
         fwrite($file, $str);
     }
 
@@ -215,6 +226,11 @@ class RootInstaller
     {
         foreach ($this->installers as $installer) {
             if ($installer->isInstall()) {
+                $installerName = get_class($installer);
+                $fileName = $this->getConfigFileName($installerName);
+                if(file_exists($fileName)) {
+                    unlink($fileName);
+                }
                 $installer->uninstall();
             }
         }
