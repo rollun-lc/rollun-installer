@@ -14,6 +14,7 @@ use Composer\IO\ConsoleIO;
 use Composer\Repository\WritableRepositoryInterface;
 use FilesystemIterator;
 use Interop\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
@@ -55,7 +56,6 @@ class RootInstaller
      */
     private function reloadContainer()
     {
-
         $this->container = include 'config/container.php';
         InsideConstruct::setContainer($this->container);
 

@@ -114,12 +114,14 @@ class LibInstallerManager
                 } elseif (preg_match('/Installer/', $item->getFilename())) {
                     //get path to lib
                     $match = [];
-                    $path = preg_match('/\/vendor\/([\w-\/]+)/', $item->getPath(), $match)
+                    $vendor = '\\' . DIRECTORY_SEPARATOR . 'vendor' . '\\' . DIRECTORY_SEPARATOR;
+                    $path = preg_match('/' . $vendor . '([\w-\/]+)/', $item->getPath(), $match)
                     && isset($match[1]) ? $match[1] : $item->getPath();
 
                     //get path to src
                     $match = [];
-                    $path = preg_match('/\/src\/([\w-\/]+)/', $path, $match)
+                    $src = '\\' . DIRECTORY_SEPARATOR . 'src' . '\\' . DIRECTORY_SEPARATOR;;
+                    $path = preg_match('/' . $src . '([\w-\/]+)/', $path, $match)
                     && isset($match[1]) ? $match[1] : null;
 
                     $classNameSpace = $this->rootNamespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
