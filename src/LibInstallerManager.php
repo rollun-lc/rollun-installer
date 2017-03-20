@@ -62,9 +62,12 @@ class LibInstallerManager
                 $dir = is_string($autoload['psr-4'][$this->rootNamespace]) ?
                     $autoload['psr-4'][$this->rootNamespace] :
                     $autoload['psr-4'][$this->rootNamespace][0];
-                $this->src = realpath('vendor') . DIRECTORY_SEPARATOR .
+                /*$this->src = realpath('vendor') . DIRECTORY_SEPARATOR .
+                    str_replace("/", DIRECTORY_SEPARATOR, $package->getPrettyName()) . DIRECTORY_SEPARATOR .
+                    $dir;*/
+                    $this->src = realpath('vendor' . DIRECTORY_SEPARATOR .
                     $package->getPrettyName() . DIRECTORY_SEPARATOR .
-                    $dir;
+                    $dir );
             }
             if (!isset($this->src) || !is_string($this->src) || !is_dir($this->src)) {
                 $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
@@ -112,19 +115,12 @@ class LibInstallerManager
                 if ($item->isDir()) {
                     $installer = array_merge($installer, $this->findInstaller($item->getPathname()));
                 } elseif (preg_match('/Installer/', $item->getFilename())) {
-                    //get path to lib
                     $match = [];
-                    $vendor = '\\' . DIRECTORY_SEPARATOR . 'vendor' . '\\' . DIRECTORY_SEPARATOR;
-                    $path = preg_match('/' . $vendor . '([\w-\/]+)/', $item->getPath(), $match)
-                    && isset($match[1]) ? $match[1] : $item->getPath();
-
-                    //get path to src
-                    $match = [];
-                    $src = '\\' . DIRECTORY_SEPARATOR . 'src' . '\\' . DIRECTORY_SEPARATOR;;
-                    $path = preg_match('/' . $src . '([\w-\/]+)/', $path, $match)
+                    $src = '\\' . DIRECTORY_SEPARATOR . 'src' . '\\' . DIRECTORY_SEPARATOR;
+                    $path = preg_match('/' . $src . '([\w-' . '\\' . DIRECTORY_SEPARATOR .']+)/', $item->getPath(), $match)
                     && isset($match[1]) ? $match[1] : null;
-
                     $classNameSpace = $this->rootNamespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
+                    
                     $class = rtrim($classNameSpace, '\\') . '\\' . $item->getBasename('.php');
                     if (class_exists($class)) {
                         $reflector = new \ReflectionClass($class);
