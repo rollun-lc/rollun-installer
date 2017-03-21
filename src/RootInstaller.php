@@ -116,12 +116,11 @@ class RootInstaller
      */
     protected function writeDescriptions($lang)
     {
+        $lang = substr($lang, 0, 2);
         foreach ($this->installers as $name => $installer) {
-            $description = $installer->getDescription(substr($lang, 0, 2));
-            if($lang == 'RU' && strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                //transliterator_transliterate(,$description);
-                $transliterator =  Transliterator::create('Any-Latin; Latin-ASCII; [\u0080-\uffff] remove');
-                $description = $transliterator->transliterate($description);
+            $description = $installer->getDescription($lang);
+            if($lang === 'ru' &&  strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $description = transliterator_transliterate('Any-Latin;Latin-ASCII;', $description);
             }
 
             $this->cliIO->write($name . ":\n" . $description);
