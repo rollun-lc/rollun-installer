@@ -18,8 +18,17 @@ use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
+use Transliterator;
 use Zend\ServiceManager\ServiceManager;
 
+//todo: добавить транслит для русс на винде
+//todo: проверять на корекность данных для подеклбчения к бд
+//todo: добавить описание о том как выбирать инталерра
+
+/**
+ * Class RootInstaller
+ * @package rollun\installer
+ */
 class RootInstaller
 {
     /** @var  Composer */
@@ -108,7 +117,14 @@ class RootInstaller
     protected function writeDescriptions($lang)
     {
         foreach ($this->installers as $name => $installer) {
-            $this->cliIO->write($name . ":\n" . $installer->getDescription(substr($lang, 0, 2)));
+            $description = $installer->getDescription(substr($lang, 0, 2));
+            if($lang == 'RU' && strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                //transliterator_transliterate(,$description);
+                $transliterator =  Transliterator::create('Any-Latin; Latin-ASCII; [\u0080-\uffff] remove');
+                $description = $transliterator->transliterate($description);
+            }
+
+            $this->cliIO->write($name . ":\n" . $description);
         }
     }
 
@@ -122,16 +138,24 @@ class RootInstaller
         $selectInstaller = array_filter($this->installers, function (InstallerInterface $installer) {
             return !$installer->isInstall();
         });
-        foreach ($selectInstaller as $name => $installer) {
+
+        $installersName = array_keys($selectInstaller);
+        foreach ($installersName as $key => $name) {
+            $installer = $selectInstaller[$name];
             if ($installer->isDefaultOn()) {
-                $defaultInstaller[] = $name;
+                $defaultInstaller[] = $key;
             }
         }
-        $installersName = array_keys($selectInstaller);
         if (!empty($selectInstaller)) {
             $selectedInstaller = [];
-            $selectedInstallerKey = $this->cliIO->select("Select installer who ben call.", $installersName, implode(",", $defaultInstaller), false, 'Value "%s" is invalid', true);
-            if(is_string($selectedInstallerKey)) {
+            $selectedInstallerKey = $this->cliIO->select(
+                "Select installer who ben call.Set number separated by `,`.Must be looks like - `0,2,3`",
+                $installersName,
+                implode(",", $defaultInstaller),
+                false,
+                'Value "%s" is invalid',
+                true);
+            if (is_string($selectedInstallerKey)) {
                 $selectedInstallerKey = explode(",", $selectedInstallerKey);
             }
             foreach ($selectedInstallerKey as $key) {
@@ -156,7 +180,7 @@ class RootInstaller
                     $this->callInstaller($depInstaller);
                 }
                 $config = $installer->install();
-                if(!empty($config)) {
+                if (!empty($config)) {
                     $this->generateConfig($config, $installerName);
                     $this->reloadContainer();
                 }
@@ -167,11 +191,24 @@ class RootInstaller
     }
 
     /**
+     * @param array $config
+     * @param $installerName
+     */
+    protected function generateConfig(array $config, $installerName)
+    {
+        $fileName = $this->getConfigFileName($installerName);
+        $file = fopen($fileName, "w");
+        $str = "<?php\nreturn\n" . $this->arrayToString($config) . ";";
+        fwrite($file, $str);
+    }
+
+    /**
      * Get config file name.
      * @param string $installerName
      * @return string
      */
-    protected function getConfigFileName($installerName){
+    protected function getConfigFileName($installerName)
+    {
         $libName = "";
         foreach ($this->libInstallerManagers as $installerManager) {
             if ($installerManager->getInstaller($installerName) !== null) {
@@ -183,17 +220,6 @@ class RootInstaller
         $configName = preg_match('/([\w]+)Installer$/', $installerName, $match) ? $match[1] : "";
         $configName = rtrim($configName, '.');
         return realpath('config/autoload/') . DIRECTORY_SEPARATOR . $libName . $configName . ".dist.local.php";
-    }
-    /**
-     * @param array $config
-     * @param $installerName
-     */
-    protected function generateConfig(array $config, $installerName)
-    {
-        $fileName = $this->getConfigFileName($installerName);
-        $file = fopen($fileName, "w");
-        $str = "<?php\nreturn\n" . $this->arrayToString($config) . ";";
-        fwrite($file, $str);
     }
 
     /**
@@ -228,7 +254,7 @@ class RootInstaller
             if ($installer->isInstall()) {
                 $installerName = get_class($installer);
                 $fileName = $this->getConfigFileName($installerName);
-                if(file_exists($fileName)) {
+                if (file_exists($fileName)) {
                     unlink($fileName);
                 }
                 $installer->uninstall();
