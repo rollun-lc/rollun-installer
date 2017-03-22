@@ -227,20 +227,33 @@ class RootInstaller
      */
     protected function arrayToString(array $array)
     {
-        $str = "[";
+        static $level;
+        $level++;
+        $str = "[\n";
         foreach ($array as $key => $item) {
+            for($i = 0; $i < $level; $i ++) {
+                $str .= "\t";
+            }
             if (!is_integer($key)) {
                 $str .= "'$key' => ";
             }
             if (is_array($item)) {
                 $str .= $this->arrayToString($item);
+            } else if (is_integer($item)){
+                $str .= $item;
             } else {
                 $str .= "'" . $item . "'";
             }
-            $str .= ",";
+            $str .= ",\n";
         }
         $str = rtrim($str, ",");
-        $str .= "]";
+        $level--;
+        if(!empty($array)) {
+            for($i = 0; $i < $level; $i ++) {
+                $str .= "\t";
+            }
+        }
+        $str .=  "]";
         return $str;
     }
 
