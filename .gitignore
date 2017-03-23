@@ -1,7 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Composer template
 composer.phar
-nbproject/
 temp/
 /vendor/
 
@@ -16,7 +15,6 @@ temp/
 phpunit.xml.dist
 composer.lock
 .idea/workspace.xml
-composer.lock
 .idea/*
 .idea/vcs.xml
 
@@ -28,7 +26,6 @@ composer.lock
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
 .idea/uiDesigner.xml
-.idea/vcs.xml
 
 # Gradle:
 .idea/gradle.xml
