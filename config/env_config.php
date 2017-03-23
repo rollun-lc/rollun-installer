@@ -9,6 +9,6 @@
 return [
     'APP_ENV' => 'dev',
     'MACHINE_NAME' => '',
-    'HOST' => '127.0.0.1',
-    'LANG' => 'ru',
+    'HOST' => 'localhost:8080',
+    'LANG' => 'ru'
 ];
