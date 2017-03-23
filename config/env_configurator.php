@@ -6,13 +6,17 @@
  * Time: 12:59 PM
  */
 global $argv;
+
 $config = include __DIR__ . '/env_config.php';
+
 $nameEnvVars = [
     'APP_ENV',
     'MACHINE_NAME',
     'HOST',
 ];
+
 $configurator = function () use ($nameEnvVars, $config, $argv) {
+
     $argvAppEnv = function () use ($argv) {
         $match = [];
         if (isset($argv)) {
@@ -24,8 +28,10 @@ $configurator = function () use ($nameEnvVars, $config, $argv) {
         }
         return null;
     };
+
     foreach ($nameEnvVars as $key) {
         $value = getenv($key) ? getenv($key) : null;
+
         if (!isset($value)) {
             if (isset($config[$key])) {
                 $value = $config[$key];
@@ -33,11 +39,13 @@ $configurator = function () use ($nameEnvVars, $config, $argv) {
                 throw new RuntimeException("Env var $key not set!");
             }
         }
+
         if ($key === 'APP_ENV' && $value === 'dev') {
             $value = isset($_SERVER['HTTP_APP_ENV']) ? $_SERVER['HTTP_APP_ENV'] : $value;
             $argvAppEnv = $argvAppEnv();
             $value = isset($argvAppEnv) ? $argvAppEnv : $value;
         }
+
         if (!defined($key)) {
             define($key, $value);
         }
@@ -50,4 +58,5 @@ $configurator = function () use ($nameEnvVars, $config, $argv) {
         }
     }
 };
+
 return $configurator();
