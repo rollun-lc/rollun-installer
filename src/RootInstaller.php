@@ -180,7 +180,7 @@ class RootInstaller
                 foreach ($dependencyInstallers as $depInstaller) {
                     $this->callInstaller($depInstaller);
                 }
-                $this->cliIO->write("Start install $installerName:\n");
+                $this->cliIO->write("Start install $installerName:");
                 try {
                     $config = $installer->install();
                     if (!empty($config)) {
