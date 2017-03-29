@@ -36,14 +36,21 @@
      * Date: 30.12.16
      * Time: 2:16 PM
      */
-    
     namespace rollun\logger;
-    
-    class Installer extends InstallerAbstract
+    use Composer\IO\IOInterface;
+    use Interop\Container\ContainerInterface;
+    use rollun\installer\Command;
+    use rollun\installer\Install\InstallerAbstract;
+    use rollun\logger\Factory\LoggingErrorListenerDelegatorFactory;
+    use rollun\logger\LogWriter\FileLogWriter;
+    use rollun\logger\LogWriter\FileLogWriterFactory;
+    use rollun\logger\LogWriter\LogWriterInterface;
+    use Zend\Stratigility\Middleware\ErrorHandler;
+
+    class LoggerInstaller extends InstallerAbstract
     {
         const LOGS_DIR = 'logs';
         const LOGS_FILE = 'logs.csv';
-    
         /**
          * Make clean and install.
          * @return void
@@ -53,7 +60,6 @@
             $this->uninstall();
             $this->install();
         }
-    
         /**
          * Clean all installation
          * @return void
@@ -72,7 +78,6 @@
                 }
             }
         }
-    
         /**
          * install
          * @return array
@@ -98,12 +103,16 @@
                         'aliases' => [
                             LogWriterInterface::DEFAULT_LOG_WRITER_SERVICE => FileLogWriter::class,
                             Logger::DEFAULT_LOGGER_SERVICE => Logger::class,
+                        ],
+                        'delegators' => [
+                            ErrorHandler::class => [
+                                LoggingErrorListenerDelegatorFactory::class
+                            ]
                         ]
                     ]
                 ];
             }
         }
-    
         public function isInstall()
         {
             $publicDir = Command::getDataDir();
@@ -112,12 +121,10 @@
             $result &= $this->container->has(Logger::DEFAULT_LOGGER_SERVICE);
             return $result;
         }
-    
         public function isDefaultOn()
         {
             return true;
         }
-    
         public function getDescription($lang = "en")
         {
             switch ($lang) {
