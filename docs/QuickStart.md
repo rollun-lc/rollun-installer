@@ -6,12 +6,12 @@
 Давайте посмотрим на сам конфиг:
 
 ```php
-    [
-        'name' => '',
-        'path' => '',
-        'middleware' => '',
-        'allowed_methods' => ['GET', 'POST'],
-    ],
+$app->route(
+    '/contact', //path
+    App\Action\ContactAction::class, //middleare
+    Zend\Expressive\Router\Route::HTTP_METHOD_ANY, //allowed_methods
+    'contact' //name
+);
 ```
 
 * **name** - Имя роута.

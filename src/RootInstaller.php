@@ -104,9 +104,11 @@ class RootInstaller
         $lang = !isset($lang) ? constant("LANG") : $lang;
         $this->writeDescriptions($lang);
         $installers = $this->selectInstaller();
+        $this->cliIO->write("Start install ...\n");
         foreach ($installers as $installerName) {
             $this->callInstaller($installerName);
         }
+        $this->cliIO->write("Finish install - Success.");
     }
 
     /**
@@ -178,10 +180,26 @@ class RootInstaller
                 foreach ($dependencyInstallers as $depInstaller) {
                     $this->callInstaller($depInstaller);
                 }
-                $config = $installer->install();
-                if (!empty($config)) {
-                    $this->generateConfig($config, $installerName);
-                    $this->reloadContainer();
+                $this->cliIO->write("Start install $installerName:\n");
+                try {
+                    $config = $installer->install();
+                    if (!empty($config)) {
+                        $this->generateConfig($config, $installerName);
+                        $this->reloadContainer();
+                    }
+                    $this->cliIO->write("Finish install $installerName - success;\n");
+                } catch (\Exception $e) {
+                    $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $e->getMessage());
+                    if(!$this->cliIO->askConfirmation("Do you want to continue with the installation?")){
+                        $this->cliIO->write("Installation was interrupted and stopped.");
+                        exit(0);
+                    }
+                } catch (\Throwable $e) {
+                    $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $e->getMessage());
+                    if(!$this->cliIO->askConfirmation("Do you want to continue with the installation?")){
+                        $this->cliIO->write("Installation was interrupted and stopped.");
+                        exit(0);
+                    }
                 }
             }
         } else {
