@@ -9,16 +9,9 @@
 namespace rollun\installer;
 
 use Composer\Composer;
-use Composer\Installer;
 use Composer\IO\ConsoleIO;
-use Composer\Repository\WritableRepositoryInterface;
-use FilesystemIterator;
-use Interop\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
-use RecursiveDirectoryIterator;
 use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
-use Transliterator;
 use Zend\ServiceManager\ServiceManager;
 
 //todo: добавить транслит для русс на винде
@@ -93,7 +86,12 @@ class RootInstaller
                 $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
             }
         }
-        $this->libInstallerManagers[] = $libInstallManager = new LibInstallerManager($this->composer->getPackage(), $this->container, $this->cliIO, realpath("src/"));
+        $this->libInstallerManagers[] = $libInstallManager = new LibInstallerManager(
+            $this->composer->getPackage(),
+            $this->container,
+            $this->cliIO,
+            realpath("src/")
+        );
         $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
     }
 
@@ -118,12 +116,14 @@ class RootInstaller
     {
         $lang = substr($lang, 0, 2);
         foreach ($this->installers as $name => $installer) {
-            $description = $installer->getDescription($lang);
-            if($lang === 'ru' &&  strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                $description = transliterator_transliterate('Any-Latin;Latin-ASCII;', $description);
-            }
+            if (!$installer->isInstall()) {
+                $description = $installer->getDescription($lang);
+                if ($lang === 'ru' && strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                    $description = transliterator_transliterate('Any-Latin;Latin-ASCII;', $description);
+                }
 
-            $this->cliIO->write($name . ":\n" . $description);
+                $this->cliIO->write($name . ":\n" . $description);
+            }
         }
     }
 
@@ -148,7 +148,7 @@ class RootInstaller
         if (!empty($selectInstaller)) {
             $selectedInstaller = [];
             $selectedInstallerKey = $this->cliIO->select(
-                "Select installer who ben call.Set number separated by `,`.Must be looks like - `0,2,3`",
+                "Select installer who ben call.Set number separated by `,`. Must be looks like - `0,2,3`",
                 $installersName,
                 implode(",", $defaultInstaller),
                 false,
@@ -231,7 +231,7 @@ class RootInstaller
         $level++;
         $str = "[\n";
         foreach ($array as $key => $item) {
-            for($i = 0; $i < $level; $i ++) {
+            for ($i = 0; $i < $level; $i++) {
                 $str .= "\t";
             }
             if (!is_integer($key)) {
@@ -239,7 +239,7 @@ class RootInstaller
             }
             if (is_array($item)) {
                 $str .= $this->arrayToString($item);
-            } else if (is_integer($item)){
+            } else if (is_integer($item)) {
                 $str .= $item;
             } else {
                 $str .= "'" . $item . "'";
@@ -248,12 +248,12 @@ class RootInstaller
         }
         $str = rtrim($str, ",");
         $level--;
-        if(!empty($array)) {
-            for($i = 0; $i < $level; $i ++) {
+        if (!empty($array)) {
+            for ($i = 0; $i < $level; $i++) {
                 $str .= "\t";
             }
         }
-        $str .=  "]";
+        $str .= "]";
         return $str;
     }
 
