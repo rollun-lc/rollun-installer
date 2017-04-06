@@ -58,4 +58,38 @@ abstract class InstallerAbstract implements InstallerInterface
     {
         $this->container = $container;
     }
+
+    /**
+     * Reask question if aswer is empty
+     * @param $question string
+     * @return string
+     */
+    protected function askParams($question)
+    {
+        do {
+            $param = $this->consoleIO->ask($question);
+            if (!is_null($param)) {
+                break;
+            }
+            $this->consoleIO->write("Name not valid.");
+        } while (true);
+        return $param;
+    }
+
+    /**
+     * Ask question with use default params and question for use.
+     * @param $paramName
+     * @param $question
+     * @param $defaultValue
+     * @return string
+     */
+    protected function askParamWithDefault($paramName, $question, $defaultValue)
+    {
+        if ($this->consoleIO->askConfirmation("Use the default $paramName for the configuration?")) {
+            $param = $defaultValue;
+        } else {
+            $param = $this->askParams($question);
+        }
+        return $param;
+    }
 }
