@@ -176,6 +176,11 @@
 
 ## Composer\IO\IOInterface
 
+Для удобства использования, созданы вспомогательные функции 
+
+* `InstallerAbstract::askParams` - будет повторять вопрос и сообщать об ошибке пока ответ пустой 
+* `InstallerAbstract::askParamWithDefault`- спросить пользователя хочет ли он использовать значение по умолчанию если ответ отрецательный попросить пользователя ввести значение.
+
 [Official DOC](https://getcomposer.org/apidoc/master/Composer/IO/IOInterface.html)
 
 Краткий туториал
