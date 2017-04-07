@@ -259,6 +259,8 @@ class RootInstaller
                 $str .= $this->arrayToString($item);
             } else if (is_integer($item)) {
                 $str .= $item;
+            } else if (is_null($item)) {
+                $str .= 'null';
             } else {
                 $str .= "'" . $item . "'";
             }
