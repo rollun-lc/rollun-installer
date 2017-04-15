@@ -9,7 +9,6 @@
 namespace rollun\installer;
 
 use Composer\IO\ConsoleIO;
-use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use FilesystemIterator;
 use Interop\Container\ContainerInterface;
@@ -65,9 +64,9 @@ class LibInstallerManager
                 /*$this->src = realpath('vendor') . DIRECTORY_SEPARATOR .
                     str_replace("/", DIRECTORY_SEPARATOR, $package->getPrettyName()) . DIRECTORY_SEPARATOR .
                     $dir;*/
-                    $this->src = realpath('vendor' . DIRECTORY_SEPARATOR .
+                $this->src = realpath('vendor' . DIRECTORY_SEPARATOR .
                     $package->getPrettyName() . DIRECTORY_SEPARATOR .
-                    $dir );
+                    $dir);
             }
             if (!isset($this->src) || !is_string($this->src) || !is_dir($this->src)) {
                 $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
@@ -117,10 +116,13 @@ class LibInstallerManager
                 } elseif (preg_match('/Installer/', $item->getFilename())) {
                     $match = [];
                     $src = '\\' . DIRECTORY_SEPARATOR . 'src' . '\\' . DIRECTORY_SEPARATOR;
-                    $path = preg_match('/' . $src . '([\w-' . '\\' . DIRECTORY_SEPARATOR .']+)/', $item->getPath(), $match)
-                    && isset($match[1]) ? $match[1] : null;
+                    $path = null;
+                    $itemPath = $item->getPath();
+                    while (preg_match('/' . $src . '([\w-' . '\\' . DIRECTORY_SEPARATOR . ']+)/', $itemPath, $match)) {
+                        $path = $match[count($match) - 1];
+                        $itemPath = $path;
+                    }
                     $classNameSpace = $this->rootNamespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
-                    
                     $class = rtrim($classNameSpace, '\\') . '\\' . $item->getBasename('.php');
                     if (class_exists($class)) {
                         $reflector = new \ReflectionClass($class);
