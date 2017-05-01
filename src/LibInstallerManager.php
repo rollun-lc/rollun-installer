@@ -114,14 +114,9 @@ class LibInstallerManager
                 if ($item->isDir()) {
                     $installer = array_merge($installer, $this->findInstaller($item->getPathname()));
                 } elseif (preg_match('/Installer/', $item->getFilename())) {
-                    $match = [];
-                    $src = '\\' . DIRECTORY_SEPARATOR . 'src' . '\\' . DIRECTORY_SEPARATOR;
-                    $path = null;
+                    $src = 'src';
                     $itemPath = $item->getPath();
-                    while (preg_match('/' . $src . '([\w-' . '\\' . DIRECTORY_SEPARATOR . ']+)/', $itemPath, $match)) {
-                        $path = $match[count($match) - 1];
-                        $itemPath = $path;
-                    }
+                    $path = ($pos = strripos($itemPath, $src)) !== false ? trim(substr($itemPath, $pos+3, strlen($itemPath)), DIRECTORY_SEPARATOR) : null;
                     $classNameSpace = $this->rootNamespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
                     $class = rtrim($classNameSpace, '\\') . '\\' . $item->getBasename('.php');
                     if (class_exists($class)) {
@@ -130,7 +125,12 @@ class LibInstallerManager
                             $reflector->isInstantiable()
                         ) {
                             $installer[] = $reflector->getName();
+                        } else {
+                            $this->cliIO->write("Class: $class not instantiable.");
+
                         }
+                    } else {
+                        $this->cliIO->write("Class: $class not exist. ClassPath -> [$itemPath]. resolvePath -> [$path]");
                     }
                 }
             }
