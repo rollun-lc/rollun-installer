@@ -120,14 +120,21 @@ class LibInstallerManager
                     $classNameSpace = $this->rootNamespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
                     $class = rtrim($classNameSpace, '\\') . '\\' . $item->getBasename('.php');
                     if (class_exists($class)) {
-                        $reflector = new \ReflectionClass($class);
-                        if ($reflector->implementsInterface(InstallerInterface::class) &&
-                            $reflector->isInstantiable()
-                        ) {
-                            $installer[] = $reflector->getName();
-                        } else {
-                            $this->cliIO->write("Class: $class not instantiable.");
+                        try {
+                            $reflector = new \ReflectionClass($class);
+                            if ($reflector->implementsInterface(InstallerInterface::class) &&
+                                $reflector->isInstantiable()
+                            ) {
+                                $installer[] = $reflector->getName();
+                            } else {
+                                $this->cliIO->write("Class: $class not instantiable.");
 
+                            }
+                        } catch (\Throwable $throwable) {
+                            $message = "Message: " . $throwable->getMessage() . " ";
+                            $message .= "File: " . $throwable->getFile() . " ";
+                            $message .= "Line: " . $throwable->getLine() . " ";
+                            $this->cliIO->writeError($message);
                         }
                     } else {
                         $this->cliIO->write("Class: $class not exist. ClassPath -> [$itemPath]. resolvePath -> [$path]");

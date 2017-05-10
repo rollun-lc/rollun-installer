@@ -86,13 +86,21 @@ class RootInstaller
                 $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
             }
         }
-        $this->libInstallerManagers[] = $libInstallManager = new LibInstallerManager(
-            $this->composer->getPackage(),
-            $this->container,
-            $this->cliIO,
-            realpath("src/")
-        );
-        $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
+        try {
+            $this->libInstallerManagers[] = $libInstallManager = new LibInstallerManager(
+                $this->composer->getPackage(),
+                $this->container,
+                $this->cliIO,
+                realpath("src/")
+            );
+            $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
+        } catch (\Throwable $throwable) {
+            $message = "Message: " . $throwable->getMessage() . " ";
+            $message .= "File: " . $throwable->getFile() . " ";
+            $message .= "Line: " . $throwable->getLine() . " ";
+            $this->cliIO->writeError($message);
+        }
+
     }
 
     /**
@@ -106,7 +114,14 @@ class RootInstaller
         $installers = $this->selectInstaller();
         $this->cliIO->write("Start install ...\n");
         foreach ($installers as $installerName) {
-            $this->callInstaller($installerName);
+            try {
+                $this->callInstaller($installerName);
+            } catch (\Throwable $throwable) {
+                $message = "[$installerName] Message: " . $throwable->getMessage() . " ";
+                $message .= "File: " . $throwable->getFile() . " ";
+                $message .= "Line: " . $throwable->getLine() . " ";
+                $this->cliIO->writeError($message);
+            }
         }
         $this->cliIO->write("Finish install - Success.");
     }
@@ -119,9 +134,16 @@ class RootInstaller
         $lang = substr($lang, 0, 2);
         $descriptions = "";
         foreach ($this->installers as $name => $installer) {
-            if (!$installer->isInstall()) {
-                $description = $installer->getDescription($lang);
-                $descriptions .= "$name:\n$description\n";
+            try {
+                if (!$installer->isInstall()) {
+                    $description = $installer->getDescription($lang);
+                    $descriptions .= "$name:\n$description\n";
+                }
+            } catch (\Throwable $throwable) {
+                $message = "[$name] Message: " . $throwable->getMessage() . " ";
+                $message .= "File: " . $throwable->getFile() . " ";
+                $message .= "Line: " . $throwable->getLine() . " ";
+                $this->cliIO->writeError($message);
             }
         }
         $this->cliIO->write($descriptions);
@@ -140,9 +162,16 @@ class RootInstaller
 
         $installersName = array_keys($selectInstaller);
         foreach ($installersName as $key => $name) {
-            $installer = $selectInstaller[$name];
-            if ($installer->isDefaultOn()) {
-                $defaultInstaller[] = $key;
+            try {
+                $installer = $selectInstaller[$name];
+                if ($installer->isDefaultOn()) {
+                    $defaultInstaller[] = $key;
+                }
+            } catch (\Throwable $throwable) {
+                $message = "[$name] Message: " . $throwable->getMessage() . " ";
+                $message .= "File: " . $throwable->getFile() . " ";
+                $message .= "Line: " . $throwable->getLine() . " ";
+                $this->cliIO->writeError($message);
             }
         }
         if (!empty($selectInstaller)) {
