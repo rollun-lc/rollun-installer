@@ -7,41 +7,27 @@
  * Time: 10:40
  */
 
-$container = null;
+//find location
+//Cannot use obj, because not found autoload
 
-$files = [
-    'autoload' => 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php',
-    'env_configurator' => 'config' . DIRECTORY_SEPARATOR . 'env_configurator.php',
-    'container' => 'config' . DIRECTORY_SEPARATOR . 'container.php'
-];
+//get current dir
+$currDir = __DIR__;
 
-$paths = [
-    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..',
-    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..',
-    __DIR__ . DIRECTORY_SEPARATOR . '..',
-    __DIR__,
-    getcwd(),
-];
-
-foreach ($paths as $path) {
-    $file = realpath($path . DIRECTORY_SEPARATOR . $files['autoload']);
-    if (file_exists($file)) {
-        $file = realpath($path . DIRECTORY_SEPARATOR . $files['autoload']);
-        require $file;
-        $file = realpath($path . DIRECTORY_SEPARATOR . $files['env_configurator']);
-        require_once $file;
-        $file = realpath($path . DIRECTORY_SEPARATOR . $files['container']);
-        $container = require $file;
-        unset($files);
-        break;
-    }
-}
-
-if (isset($files)) {
-    echo "require file not found. \n";
-
+//find vendor dir in path, else exit(1).
+$match = [];
+if(preg_match('/([\w\W]+)\/vendor/', $currDir, $match)) {
+    $rootPath = $match[1];
+    chdir($rootPath);
+} else {
+    echo "Not found project root dir. CurrentDir:[$currDir]";
     exit(1);
 }
+
+require 'vendor/autoload.php';
+require_once 'config/env_configurator.php';
+$container = require 'config/container.php';
+\rollun\dic\InsideConstruct::setContainer($container);
+
 
 use Composer\IO\ConsoleIO;
 use rollun\installer\Install\InstallerInterface;
@@ -82,7 +68,8 @@ if (class_exists($className)) {
             $installer = $reflectionClass->newInstance($container, $composerIO);
             $method = isset($argv[2]) ? $argv[2] : "install";
             call_user_func([$installer, $method]);
-            exit(1);
+            $composerIO->write('Installed success.');
+            exit(0);
         } catch (Exception $exception) {
             $composerIO->writeError(
                 "Installer: $className crash by exception with message: " .
