@@ -215,15 +215,15 @@ class RootInstaller
                         $this->reloadContainer();
                     }
                     $this->cliIO->write("Finish install $installerName - success;\n");
-                } catch (\Exception $e) {
-                    $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $e->getMessage());
-                    if(!$this->cliIO->askConfirmation("Do you want to continue with the installation?")){
-                        $this->cliIO->write("Installation was interrupted and stopped.");
-                        exit(0);
-                    }
-                } catch (\Throwable $e) {
-                    $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $e->getMessage());
-                    if(!$this->cliIO->askConfirmation("Do you want to continue with the installation?")){
+                } catch (\Throwable $throwable) {
+                    $this->cliIO->write("Finish install $installerName - exception;");
+                    $message = "Message: " . $throwable->getMessage() . " ";
+                    $message .= "File: " . $throwable->getFile() . " ";
+                    $message .= "Line: " . $throwable->getLine() . " ";
+                    $message .= "Trace: " . $throwable->getTraceAsString();
+
+                    $this->cliIO->writeError($message);
+                    if (!$this->cliIO->askConfirmation("Do you want to continue with the installation?")) {
                         $this->cliIO->write("Installation was interrupted and stopped.");
                         exit(0);
                     }
