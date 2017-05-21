@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: root
@@ -10,7 +11,7 @@ namespace rollun\test\installer;
 
 use rollun\installer\Command;
 
-class CommandTest extends \PHPUnit_Framework_TestCase
+class CommandTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testPublicDir()
@@ -19,4 +20,5 @@ class CommandTest extends \PHPUnit_Framework_TestCase
         $publicDir = Command::getPublicDir();
         $this->assertEquals($expectedPublicDir, $publicDir);
     }
+
 }

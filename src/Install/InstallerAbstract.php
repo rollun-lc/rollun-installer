@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: victorsecuring
@@ -92,4 +93,35 @@ abstract class InstallerAbstract implements InstallerInterface
         }
         return $param;
     }
+
+    /**
+     *
+     * @param type $question string "Do you want to use default DbAdapter? y/n/q";
+     * @param type $default 'y', 'n', 'q' or null
+     * @param bool $exitIfQ
+     * @return string 'y', 'n', 'q'
+     */
+    public function askYesNoQuit($question, $default = null, $exitIfQ = true)
+    {
+        do {
+            try {
+                $answer = strtolower($this->consoleIO->ask($question));
+            } catch (\RuntimeException $exc) {
+                if ($exc->getMessage() == 'Aborted') {
+                    $answer = 'q';
+                } else {
+                    throw new LoggedException($exc->getMessage());
+                }
+            }
+
+            if (in_array($answer, ['y', 'n', 'q'])) {
+                if ($exitIfQ && ($answer == 'q')) {
+                    exit;
+                }
+                return $answer;
+            }
+            $this->consoleIO->write("Answer is not valid. Type 'y' or 'n' or 'q' (yes/no/quit) pls.");
+        } while (true);
+    }
+
 }

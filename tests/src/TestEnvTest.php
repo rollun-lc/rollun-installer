@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: victorsecuring
@@ -8,8 +9,9 @@
 
 namespace rollun\test\skeleton;
 
-class TestEnvTest extends \PHPUnit_Framework_TestCase
+class TestEnvTest extends \PHPUnit\Framework\TestCase
 {
+
     protected $nameEnvVars = [
         'APP_ENV',
         'MACHINE_NAME',
@@ -22,4 +24,5 @@ class TestEnvTest extends \PHPUnit_Framework_TestCase
             $this->assertNotNull(constant($envVar));
         }
     }
+
 }
