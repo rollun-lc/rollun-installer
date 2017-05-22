@@ -7,7 +7,7 @@
 
         $container = $this->getContainer();
 
-		$userInput = "y\n";
+        $userInput = "y\n";
         $outputStream = $this->getOutputStream();
         $io = $this->getIo($userInput, $outputStream);
 
