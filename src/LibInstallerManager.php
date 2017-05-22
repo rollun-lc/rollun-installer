@@ -127,17 +127,16 @@ class LibInstallerManager
                             ) {
                                 $installer[] = $reflector->getName();
                             } else {
-                                $this->cliIO->write("Class: $class not instantiable.");
-
+                                //$this->cliIO->write("Class: $class not instantiable.");
                             }
                         } catch (\Throwable $throwable) {
                             $message = "Message: " . $throwable->getMessage() . " ";
                             $message .= "File: " . $throwable->getFile() . " ";
                             $message .= "Line: " . $throwable->getLine() . " ";
-                            $this->cliIO->writeError($message);
+                            //$this->cliIO->writeError($message);
                         }
                     } else {
-                        $this->cliIO->write("Class: $class not exist. ClassPath -> [$itemPath]. resolvePath -> [$path]");
+                        //$this->cliIO->write("Class: $class not exist. ClassPath -> [$itemPath]. resolvePath -> [$path]");
                     }
                 }
             }
