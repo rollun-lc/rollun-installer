@@ -91,7 +91,7 @@ class RootInstaller
                 $this->composer->getPackage(),
                 $this->container,
                 $this->cliIO,
-                realpath("src/")
+                realpath("./")
             );
             $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
         } catch (\Throwable $throwable) {
@@ -215,14 +215,11 @@ class RootInstaller
                         $this->reloadContainer();
                     }
                     $this->cliIO->write("Finish install $installerName - success;\n");
-                } catch (\Exception $e) {
-                    $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $e->getMessage());
-                    if(!$this->cliIO->askConfirmation("Do you want to continue with the installation?")){
-                        $this->cliIO->write("Installation was interrupted and stopped.");
-                        exit(0);
-                    }
-                } catch (\Throwable $e) {
-                    $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $e->getMessage());
+                } catch (\Throwable $throwable) {
+                    $message = "[$installerName] Message: " . $throwable->getMessage() . " ";
+                    $message .= "File: " . $throwable->getFile() . " ";
+                    $message .= "Line: " . $throwable->getLine() . " ";
+                    $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $message);
                     if(!$this->cliIO->askConfirmation("Do you want to continue with the installation?")){
                         $this->cliIO->write("Installation was interrupted and stopped.");
                         exit(0);

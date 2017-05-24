@@ -53,35 +53,42 @@ class LibInstallerManager
 
         $autoload = $package->getAutoload();
         if (isset($autoload['psr-4'])) {
-            $this->rootNamespace = array_keys($autoload['psr-4'])[0];
+            $rootNamespaces = array_keys($autoload['psr-4']);
+            $this->cliIO->writeError("autoload['psr-4']: " . implode(', ', $rootNamespaces));
 
-            if (isset($src)) {
-                $this->src = $src;
-            } else if (isset($autoload['psr-4'][$this->rootNamespace])) {
-                $dir = is_string($autoload['psr-4'][$this->rootNamespace]) ?
-                    $autoload['psr-4'][$this->rootNamespace] :
-                    $autoload['psr-4'][$this->rootNamespace][0];
-                /*$this->src = realpath('vendor') . DIRECTORY_SEPARATOR .
-                    str_replace("/", DIRECTORY_SEPARATOR, $package->getPrettyName()) . DIRECTORY_SEPARATOR .
-                    $dir;*/
-                $this->src = realpath('vendor' . DIRECTORY_SEPARATOR .
-                    $package->getPrettyName() . DIRECTORY_SEPARATOR .
-                    $dir);
-            }
-            if (!isset($this->src) || !is_string($this->src) || !is_dir($this->src)) {
-                $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
-            } else {
-                $installers = $this->findInstaller($this->src);
-                foreach ($installers as $installerClass) {
-                    try {
-                        /** @var  InstallerAbstract $installer */
-                        $installer = new $installerClass($this->container, $this->cliIO);
-                        $this->installers[$installerClass] = $installer;
-                    } catch (\Exception $exception) {
-                        $this->cliIO->writeError(
-                            "Installer: $installerClass crash by exception with message: " .
-                            $exception->getMessage()
-                        );
+            foreach ($rootNamespaces as $rootNamespace) {
+                $this->rootNamespace = $rootNamespace;
+                if (isset($src) && isset($autoload['psr-4'][$this->rootNamespace])) {
+                    $dir = is_string($autoload['psr-4'][$this->rootNamespace]) ?
+                        $autoload['psr-4'][$this->rootNamespace] :
+                        $autoload['psr-4'][$this->rootNamespace][0];
+                    $this->src = realpath($src . DIRECTORY_SEPARATOR . $dir);
+                } elseif (isset($autoload['psr-4'][$this->rootNamespace])) {
+                    $dir = is_string($autoload['psr-4'][$this->rootNamespace]) ?
+                        $autoload['psr-4'][$this->rootNamespace] :
+                        $autoload['psr-4'][$this->rootNamespace][0];
+                    /*$this->src = realpath('vendor') . DIRECTORY_SEPARATOR .
+                        str_replace("/", DIRECTORY_SEPARATOR, $package->getPrettyName()) . DIRECTORY_SEPARATOR .
+                        $dir;*/
+                    $this->src = realpath('vendor' . DIRECTORY_SEPARATOR .
+                        $package->getPrettyName() . DIRECTORY_SEPARATOR .
+                        $dir);
+                }
+                if (!isset($this->src) || !is_string($this->src) || !is_dir($this->src)) {
+                    $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
+                } else {
+                    $installers = $this->findInstaller($this->src);
+                    foreach ($installers as $installerClass) {
+                        try {
+                            /** @var  InstallerAbstract $installer */
+                            $installer = new $installerClass($this->container, $this->cliIO);
+                            $this->installers[$installerClass] = $installer;
+                        } catch (\Exception $exception) {
+                            $this->cliIO->writeError(
+                                "Installer: $installerClass crash by exception with message: " .
+                                $exception->getMessage()
+                            );
+                        }
                     }
                 }
             }
@@ -127,16 +134,16 @@ class LibInstallerManager
                             ) {
                                 $installer[] = $reflector->getName();
                             } else {
-                                //$this->cliIO->write("Class: $class not instantiable.");
+                                $this->cliIO->write("Class: $class not instantiable.");
                             }
                         } catch (\Throwable $throwable) {
                             $message = "Message: " . $throwable->getMessage() . " ";
                             $message .= "File: " . $throwable->getFile() . " ";
                             $message .= "Line: " . $throwable->getLine() . " ";
-                            //$this->cliIO->writeError($message);
+                            $this->cliIO->writeError($message);
                         }
                     } else {
-                        //$this->cliIO->write("Class: $class not exist. ClassPath -> [$itemPath]. resolvePath -> [$path]");
+                        $this->cliIO->write("Class: $class not exist. ClassPath -> [$itemPath]. resolvePath -> [$path]");
                     }
                 }
             }
