@@ -67,4 +67,10 @@ interface InstallerInterface
      * @return void
      */
     public function setContainer(ContainerInterface $container);
+
+    /**
+     * Return installer nameSpace.
+     * @return string
+     */
+    public function getNameSpace();
 }

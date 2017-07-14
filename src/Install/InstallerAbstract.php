@@ -10,6 +10,7 @@
 namespace rollun\installer\Install;
 
 use Composer\IO\IOInterface;
+use Exception;
 use Interop\Container\ContainerInterface;
 
 abstract class InstallerAbstract implements InstallerInterface
@@ -41,6 +42,16 @@ abstract class InstallerAbstract implements InstallerInterface
     public function getDependencyInstallers()
     {
         return [];
+    }
+
+    /**
+     * Return installer nameSpace.
+     * @return string
+     */
+    public function getNameSpace()
+    {
+        $reflection = new \ReflectionClass(static::class);
+        return $reflection->getNamespaceName();
     }
 
     /**
@@ -100,6 +111,7 @@ abstract class InstallerAbstract implements InstallerInterface
      * @param type $default 'y', 'n', 'q' or null
      * @param bool $exitIfQ
      * @return string 'y', 'n', 'q'
+     * @throws Exception
      */
     public function askYesNoQuit($question, $default = null, $exitIfQ = true)
     {
@@ -110,7 +122,7 @@ abstract class InstallerAbstract implements InstallerInterface
                 if ($exc->getMessage() == 'Aborted') {
                     $answer = 'q';
                 } else {
-                    throw new LoggedException($exc->getMessage());
+                    throw new Exception($exc->getMessage());
                 }
             }
 

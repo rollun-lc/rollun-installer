@@ -14,9 +14,6 @@ use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
 use Zend\ServiceManager\ServiceManager;
 
-//todo: добавить транслит для русс на винде
-//todo: проверять на корекность данных для подеклбчения к бд
-//todo: добавить описание о том как выбирать инталерра
 
 /**
  * Class RootInstaller
@@ -251,11 +248,9 @@ class RootInstaller
     protected function getConfigFileName($installerName)
     {
         $libName = "";
-        foreach ($this->libInstallerManagers as $installerManager) {
-            if ($installerManager->getInstaller($installerName) !== null) {
-                $libName = str_replace("\\", ".", $installerManager->getRootNamespace());
-                break;
-            }
+        if(isset($this->installers[$installerName])){
+            $installer = $this->installers[$installerName];
+            $libName = str_replace("\\", ".", $installer->getNameSpace()) . ".";
         }
         $match = [];
         $configName = preg_match('/([\w]+)Installer$/', $installerName, $match) ? $match[1] : "";
