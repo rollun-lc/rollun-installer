@@ -174,6 +174,34 @@
 Так же существует необязательный параметр `-l=` которым можно указать язык на котором будет выводится описание 
 * `composer lib install -l=ru` - Запускать инсталяторы, описание выводить на русском языке.
 
+### Настройка библиотеки после установки
+
+После отработки установщика установленная библиотека все еще не видима проекту. Для ее полноценной работы нужно прописать ее ConfigProvider в
+общий файл конфигурации проекта:
+
+    # Файл config/config.php
+    $aggregator = new ConfigAggregator([
+        // Добавляем ConfigProvider установленной библиотеки
+        \rollun\logger\ConfigProvider::class,
+        // ...
+    ], $cacheConfig['config_cache_path']);
+    
+А после этого добавить маршруты в файл конфигурации маршрутов приложения:
+    
+    # Файл config/routes.php
+    // ...
+    $app->route(
+        '/api/datastore[/{resourceName}[/{id}]]',
+        'api-datastore',
+        ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+        'api-datastore'
+    );
+ 
+### Zend component installer
+
+Все эти постустановочные действия можно автоматизировать. В этом поможет пакет [Zend Component Installer](ZendComponentInstaller.md).
+
+
 ## Composer\IO\IOInterface
 
 Для удобства использования, созданы вспомогательные функции 
