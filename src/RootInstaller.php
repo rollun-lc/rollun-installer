@@ -280,6 +280,8 @@ class RootInstaller
                 $str .= $item;
             } else if (is_null($item)) {
                 $str .= 'null';
+            } else if(is_bool($item)) {
+                $str .= $item === true ? 'true' : 'false';
             } else {
                 $str .= "'" . $item . "'";
             }
