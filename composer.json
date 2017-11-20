@@ -43,7 +43,7 @@
         }
     },
     "bin": [
-        "bin/InstallerSelfCall"
+        "bin/InstallerSelfCall.php"
     ],
     "autoload-dev": {
         "psr-4": {
