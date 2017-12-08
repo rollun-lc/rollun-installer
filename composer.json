@@ -28,7 +28,8 @@
         "zendframework/zend-http": "^2.5",
         "composer/composer": "^1.0",
         "composer-plugin-api": "^1.1",
-        "rollun-com/rollun-dic": "^2.2"
+        "rollun-com/rollun-dic": "^2.2",
+        "http-interop/http-middleware": "0.4.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.0.8 || ^5.7.15",

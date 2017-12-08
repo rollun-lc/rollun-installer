@@ -60,7 +60,8 @@ class Command
         $argv = $event->getArguments();
         $match = [];
         $lang = preg_match('/-l=([\w]+)\|?/', implode("|", $argv), $match) ? $match[1] : null;
-
+        $isDebug = in_array("debug", $argv) ? true : false;
+        define("isDebug", $isDebug);//TODO: refactor this.
         /** @noinspection PhpParamsInspection */
         try {
             $rootInstaller = new RootInstaller($event->getComposer(), $event->getIO());
