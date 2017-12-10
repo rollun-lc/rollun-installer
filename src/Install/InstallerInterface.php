@@ -10,6 +10,7 @@ namespace rollun\installer\Install;
 
 use Composer\IO\IOInterface;
 use Interop\Container\ContainerInterface;
+use rollun\installer\RootInstaller;
 
 interface InstallerInterface
 {
@@ -17,9 +18,10 @@ interface InstallerInterface
      * Installer constructor.
      * @param ContainerInterface $container
      * @param IOInterface $ioComposer
+     * @param RootInstaller $rootInstaller
      * @internal param IOInterface $IO
      */
-    public function __construct(ContainerInterface $container, IOInterface $ioComposer);
+    public function __construct(ContainerInterface $container, IOInterface $ioComposer, RootInstaller $rootInstaller);
 
     //TODO: init and re must make clean if during installation exception was obtained.
     /**

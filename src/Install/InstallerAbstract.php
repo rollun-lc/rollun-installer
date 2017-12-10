@@ -12,6 +12,7 @@ namespace rollun\installer\Install;
 use Composer\IO\IOInterface;
 use Exception;
 use Interop\Container\ContainerInterface;
+use rollun\installer\RootInstaller;
 
 abstract class InstallerAbstract implements InstallerInterface
 {
@@ -21,17 +22,33 @@ abstract class InstallerAbstract implements InstallerInterface
 
     /** @var IOInterface  */
     protected $consoleIO;
+    /**
+     * @var RootInstaller
+     */
+    private $rootInstaller;
 
     /**
      * Installer constructor.
      * @param ContainerInterface $container
      * @param IOInterface $ioComposer
+     * @param RootInstaller $rootInstaller
      * @internal param IOInterface $IO
      */
-    public function __construct(ContainerInterface $container, IOInterface $ioComposer)
+    public function __construct(ContainerInterface $container, IOInterface $ioComposer, RootInstaller $rootInstaller)
     {
         $this->consoleIO = $ioComposer;
         $this->container = $container;
+        $this->rootInstaller = $rootInstaller;
+    }
+
+    /**
+     * Call the installation of the child installer. Return the config it generated.
+     * @param $installerName
+     * @return array
+     */
+    protected function callInstaller($installerName)
+    {
+        return $this->rootInstaller->callInstaller($installerName);
     }
 
     public function isDefaultOn()
@@ -52,15 +69,6 @@ abstract class InstallerAbstract implements InstallerInterface
     {
         $reflection = new \ReflectionClass(static::class);
         return $reflection->getNamespaceName();
-    }
-
-    /**
-     * Return true if install, or false else
-     * @return bool
-     */
-    public function isInstall()
-    {
-        return $this->consoleIO->askConfirmation("You have gone through all the steps to install this " . __CLASS__ . " [Yes/No]", false);
     }
 
     /**

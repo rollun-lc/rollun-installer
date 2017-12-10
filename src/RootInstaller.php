@@ -61,9 +61,9 @@ class RootInstaller
         foreach ($this->installers as $installer) {
             $installer->setContainer($this->container);
         }
-        foreach ($this->libInstallerManagers as $libInstallerManager) {
+        /*foreach ($this->libInstallerManagers as $libInstallerManager) {
             $libInstallerManager->setContainer($this->container);
-        }
+        }*/
     }
 
     /**
@@ -75,12 +75,12 @@ class RootInstaller
         $localRep = $this->composer->getRepositoryManager()->getLocalRepository();
         //get all dep lis (include dependency of dependency)
         $dependencies = $localRep->getPackages();
-
+        $installers = [];
         foreach ($dependencies as $dependency) {
             $libInstallManager = new LibInstallerManager($dependency, $this->container, $this->cliIO);
             if ($libInstallManager->isSupported()) {
                 $this->libInstallerManagers[] = $libInstallManager;
-                $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
+                $installers = array_merge($installers, $libInstallManager->getInstallers());
             }
         }
         try {
@@ -90,14 +90,27 @@ class RootInstaller
                 $this->cliIO,
                 realpath("./")
             );
-            $this->installers = array_merge($this->installers, $libInstallManager->getInstallers());
+            $installers = array_merge($installers, $libInstallManager->getInstallers());
         } catch (\Throwable $throwable) {
             $message = "Message: " . $throwable->getMessage() . " ";
             $message .= "File: " . $throwable->getFile() . " ";
             $message .= "Line: " . $throwable->getLine() . " ";
             $this->cliIO->writeError($message);
         }
+        foreach ($installers as $installerClass) {
+            try {
+                $installer = new $installerClass($this->container, $this->cliIO, $this);
+                $this->installers[$installerClass] = $installer;
+            } catch (\Exception $exception) {
+                if (constant("isDebug")) {
+                    $this->cliIO->writeError(
+                        "Installer: $installerClass crash by exception with message: " .
+                        $exception->getMessage()
+                    );
+                }
 
+            }
+        }
     }
 
     /**
@@ -194,8 +207,9 @@ class RootInstaller
     /**
      * call selected installer and all dep installers
      * @param $installerName
+     * @return array
      */
-    protected function callInstaller($installerName)
+    public function callInstaller($installerName)
     {
         if (isset($this->installers[$installerName])) {
             $installer = $this->installers[$installerName];
@@ -217,7 +231,7 @@ class RootInstaller
                     $message .= "File: " . $throwable->getFile() . " ";
                     $message .= "Line: " . $throwable->getLine() . " ";
                     $this->cliIO->write("Finish install $installerName - exception;\nMessage: " . $message);
-                    if(!$this->cliIO->askConfirmation("Do you want to continue with the installation?")){
+                    if (!$this->cliIO->askConfirmation("Do you want to continue with the installation?")) {
                         $this->cliIO->write("Installation was interrupted and stopped.");
                         exit(0);
                     }
@@ -226,6 +240,7 @@ class RootInstaller
         } else {
             throw new \RuntimeException("Installer with name $installerName not found.");
         }
+        return $config;
     }
 
     /**
@@ -248,7 +263,7 @@ class RootInstaller
     protected function getConfigFileName($installerName)
     {
         $libName = "";
-        if(isset($this->installers[$installerName])){
+        if (isset($this->installers[$installerName])) {
             $installer = $this->installers[$installerName];
             $libName = str_replace("\\", ".", $installer->getNameSpace()) . ".";
         }
@@ -280,7 +295,7 @@ class RootInstaller
                 $str .= $item;
             } else if (is_null($item)) {
                 $str .= 'null';
-            } else if(is_bool($item)) {
+            } else if (is_bool($item)) {
                 $str .= $item === true ? 'true' : 'false';
             } else {
                 $str .= "'" . $item . "'";
