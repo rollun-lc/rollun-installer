@@ -211,6 +211,7 @@ class RootInstaller
      */
     public function callInstaller($installerName)
     {
+        $config = [];
         if (isset($this->installers[$installerName])) {
             $installer = $this->installers[$installerName];
             if (!$installer->isInstall()) {
