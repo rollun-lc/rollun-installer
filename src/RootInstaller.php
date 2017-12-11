@@ -11,6 +11,7 @@ namespace rollun\installer;
 use Composer\Composer;
 use Composer\IO\ConsoleIO;
 use rollun\dic\InsideConstruct;
+use rollun\installer\Install\InstallerAbstract;
 use rollun\installer\Install\InstallerInterface;
 use Zend\ServiceManager\ServiceManager;
 
@@ -99,7 +100,9 @@ class RootInstaller
         }
         foreach ($installers as $installerClass) {
             try {
-                $installer = new $installerClass($this->container, $this->cliIO, $this);
+                /** @var InstallerInterface $installer */
+                $installer = new $installerClass($this->container, $this->cliIO);
+                $installer->setRootInstaller($this);
                 $this->installers[$installerClass] = $installer;
             } catch (\Exception $exception) {
                 if (constant("isDebug")) {

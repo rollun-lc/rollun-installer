@@ -18,10 +18,15 @@ interface InstallerInterface
      * Installer constructor.
      * @param ContainerInterface $container
      * @param IOInterface $ioComposer
-     * @param RootInstaller $rootInstaller
      * @internal param IOInterface $IO
      */
-    public function __construct(ContainerInterface $container, IOInterface $ioComposer, RootInstaller $rootInstaller);
+    public function __construct(ContainerInterface $container, IOInterface $ioComposer);
+
+    /**
+     * @param RootInstaller $rootInstaller
+     * @return void
+     */
+    public function setRootInstaller(RootInstaller $rootInstaller);
 
     //TODO: init and re must make clean if during installation exception was obtained.
     /**

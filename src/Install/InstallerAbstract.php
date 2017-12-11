@@ -12,6 +12,7 @@ namespace rollun\installer\Install;
 use Composer\IO\IOInterface;
 use Exception;
 use Interop\Container\ContainerInterface;
+use rollun\installer\InstallerException;
 use rollun\installer\RootInstaller;
 
 abstract class InstallerAbstract implements InstallerInterface
@@ -31,13 +32,19 @@ abstract class InstallerAbstract implements InstallerInterface
      * Installer constructor.
      * @param ContainerInterface $container
      * @param IOInterface $ioComposer
-     * @param RootInstaller $rootInstaller
      * @internal param IOInterface $IO
      */
-    public function __construct(ContainerInterface $container, IOInterface $ioComposer, RootInstaller $rootInstaller)
+    public function __construct(ContainerInterface $container, IOInterface $ioComposer)
     {
         $this->consoleIO = $ioComposer;
         $this->container = $container;
+    }
+
+    /**
+     * @param RootInstaller $rootInstaller
+     */
+    public function setRootInstaller(RootInstaller $rootInstaller)
+    {
         $this->rootInstaller = $rootInstaller;
     }
 
@@ -48,6 +55,9 @@ abstract class InstallerAbstract implements InstallerInterface
      */
     protected function callInstaller($installerName)
     {
+        if(!isset($this->rootInstaller)) {
+            throw new InstallerException("Root installer not injected.");
+        }
         return $this->rootInstaller->callInstaller($installerName);
     }
 
