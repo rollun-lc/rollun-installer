@@ -81,7 +81,7 @@ class LibInstallerManager
                         $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
                     }
                 } else {
-                    $this->installers = $this->findInstaller($this->src);
+                    $this->installers = array_merge($this->installers, $this->findInstaller($this->src));
                     /*foreach ($installers as $installerClass) {
                         try {
                             $installer = new $installerClass($this->container, $this->cliIO);
