@@ -9,6 +9,7 @@
 //Instalabe StaticInstalabe
 namespace rollun\installer;
 
+use Composer\Command\BaseCommand;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Script\Event;
@@ -24,8 +25,14 @@ if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-mi
 }
 require_once 'config/env_configurator.php';
 
-class Command
+class InstallerCommand extends BaseCommand
 {
+
+    protected function configure()
+    {
+        $this->setName("lib");
+        echo "asdfadsf";
+    }
 
     const INSTALL = 'install';
 
