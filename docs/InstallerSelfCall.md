@@ -8,35 +8,35 @@
 Для Unix
 
 ```bash
-    bash vendor/bin/InstallerSelfCall "rollun\datastore\DataStore\Eav\Installer"
+    bash vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer"
 ```
 
 ```bash
-    bash vendor/bin/InstallerSelfCall "rollun\datastore\DataStore\Eav\Installer" install
+    bash vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" install
 ```
 
 ```bash
-    bash vendor/bin/InstallerSelfCall "rollun\datastore\DataStore\Eav\Installer" uninstall
+    bash vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" uninstall
 ```
 
 ```bash
-    bash vendor/bin/InstallerSelfCall "rollun\datastore\DataStore\Eav\Installer" reinstall
+    bash vendor/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" reinstall
 ```
 
 Или для Win
 
 ```bash
-   vendor\bin\InstallerSelfCall.bat "rollun\datastore\DataStore\Eav\Installer"
+   vendor\bin\InstallerSelfCall.php.bat "rollun\datastore\DataStore\Eav\Installer"
 ```
 
 ```bash
-   vendor\bin\InstallerSelfCall.bat "rollun\datastore\DataStore\Eav\Installer" install
+   vendor\bin\InstallerSelfCall.php.bat "rollun\datastore\DataStore\Eav\Installer" install
 ```
 
 ```bash
-   vendor\bin\InstallerSelfCall.bat "rollun\datastore\DataStore\Eav\Installer" uninstall
+   vendor\bin\InstallerSelfCall.php.bat "rollun\datastore\DataStore\Eav\Installer" uninstall
 ```
 
 ```bash
-   vendor\bin\InstallerSelfCall.bat "rollun\datastore\DataStore\Eav\Installer" reinstall
+   vendor\bin\InstallerSelfCall.php.bat "rollun\datastore\DataStore\Eav\Installer" reinstall
 ```

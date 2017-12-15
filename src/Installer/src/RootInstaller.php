@@ -124,6 +124,7 @@ class RootInstaller
     {
         $lang = !isset($lang) ? constant("LANG") : $lang;
         $this->writeDescriptions($lang);
+        usleep(500 * 1000);//Need for correct worn on win open server.
         $installers = $this->selectInstaller();
         $this->cliIO->write("Start install ...\n");
         foreach ($installers as $installerName) {
@@ -240,6 +241,8 @@ class RootInstaller
                         exit(0);
                     }
                 }
+            } else {
+                $this->cliIO->warning("Installer $installerName is already installed.");
             }
         } else {
             throw new \RuntimeException("Installer with name $installerName not found.");

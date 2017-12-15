@@ -15,8 +15,8 @@ $currDir = __DIR__;
 
 //find vendor dir in path, else exit(1).
 $match = [];
-if(preg_match('/([\w\W]+)\/vendor/', $currDir, $match)) {
-    $rootPath = $match[1];
+if(preg_match('/(?<rootDir>[\w\W]+)(\/|\\)vendor/', $currDir, $match)) {
+    $rootPath = realPath($match["rootDir"]);
     chdir($rootPath);
 } else {
     echo "Not found project root dir. CurrentDir:[$currDir]";
