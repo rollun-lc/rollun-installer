@@ -9,7 +9,7 @@
 
 namespace rollun\test\installer;
 
-use rollun\installer\InstallerCommand;
+use rollun\installer\Command;
 
 class CommandTest extends \PHPUnit\Framework\TestCase
 {
@@ -17,7 +17,7 @@ class CommandTest extends \PHPUnit\Framework\TestCase
     public function testPublicDir()
     {
         $expectedPublicDir = realpath('public');
-        $publicDir = InstallerCommand::getPublicDir();
+        $publicDir = Command::getPublicDir();
         $this->assertEquals($expectedPublicDir, $publicDir);
     }
 

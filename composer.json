@@ -1,8 +1,8 @@
 {
     "name": "rollun-com/rollun-installer",
+    "type": "composer-plugin",
     "description": "Installer",
     "minimum-stability": "stable",
-    "type": "composer-plugin",
     "license": "proprietary",
     "authors": [
         {

@@ -1,122 +1,90 @@
 <?php
 /**
- *
  * Created by PhpStorm.
  * User: victorsecuring
- * Date: 27.12.16
- * Time: 4:02 PM
+ * Date: 16.12.17
+ * Time: 00:50
  */
-//Instalabe StaticInstalabe
+
 namespace rollun\installer;
 
-use Composer\Command\BaseCommand;
-use Composer\IO\IOInterface;
-use Composer\Package\PackageInterface;
-use Composer\Script\Event;
-use FilesystemIterator;
-use Interop\Container\ContainerInterface;
-use RecursiveDirectoryIterator;
-use rollun\dic\InsideConstruct;
-use rollun\installer\Install\InstallerInterface;
 
-//because composer not loads dependent autoload script.
-if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php')) {
-    require_once 'vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php';
-}
-require_once 'config/env_configurator.php';
+use Composer\Command\BaseCommand;
+use function Couchbase\basicEncoderV1;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class InstallerCommand extends BaseCommand
 {
 
-    protected function configure()
-    {
-        $this->setName("lib");
-        echo "asdfadsf";
-    }
+	const CMD_NAME = "lib";
 
-    const INSTALL = 'install';
+	const CMD_ARG_INSTALL = 'install';
 
-    const UNINSTALL = 'uninstall';
+	const CMD_ARG_UNINSTALL = 'uninstall';
 
-    const REINSTALL = 'reinstall';
+	const CMD_OPTION_LANG = "lang";
 
-    /**
-     * avz-cmf [lib-name] => [
-     *      "class" => 'InstallerCommands::Class'
-     *      "installed" => true|false
-     * ]
-     * @var array
-     **/
-    protected static $dep = [];
+	const CMD_OPTION_DEBUG = "debug";
 
-    /** @var ContainerInterface */
-    private static $container = null;
+	/**
+	 * InstallerCommand constructor.
+	 */
+	public function __construct()
+	{
+		parent::__construct(static::CMD_NAME);
+		$this->addArgument(
+			"type",
+			InputArgument::REQUIRED,
+			"Lib management(configuration) type (install|uninstall)."
+		);
+		$this->addOption(
+			"lang",
+			"-l",
+			InputOption::VALUE_OPTIONAL,
+			"Output language.",
+			null
+		);
 
-    /**
-     * do command for include installers.
-     * Composer Event - for get dependencies and IO
-     * @param Event $event
-     */
-    public static function command(Event $event)
-    {
-        /*
-         * usage: lib
-         *  [ install | uninstall ]
-         *  [ -l= ]
-         */
-        $argv = $event->getArguments();
-        $match = [];
-        $lang = preg_match('/-l=([\w]+)\|?/', implode("|", $argv), $match) ? $match[1] : null;
-        $isDebug = in_array("debug", $argv) ? true : false;
-        define("isDebug", $isDebug);//TODO: refactor this.
-        /** @noinspection PhpParamsInspection */
-        try {
-            $rootInstaller = new RootInstaller($event->getComposer(), $event->getIO());
-            if(in_array('install', $argv)){
-                $rootInstaller->install($lang);
-            } else if (in_array('uninstall', $argv)){
-                $rootInstaller->uninstall();
-            } else {
-                $event->getIO()->writeError("usage:\n composer lib [install\\uninstall] [-l={language}]");
-            }
-        } catch (\Exception $e) {
-            $event->getIO()->writeError($e->getMessage());
-        }
-    }
+		//TODO: remove this. see isDebug (OutputInterface or --verbose options)
+		$this->addOption(
+			"debug",
+			"-deb",
+			InputOption::VALUE_OPTIONAL,
+			"Enable debug info. (Can use -v|verbose mode.)",
+			0
+			);
+	}
 
-    /**
-     * Return true if call in lib or false in app
-     * @return string
-     */
-    public static function isLib()
-    {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        $className = $trace[1]['class'];
-        $reflectionClass = new \ReflectionClass($className);
-        return preg_match('/\/vendor\//', $reflectionClass->getFileName()) == 1;
-    }
-
-    public static function getPublicDir()
-    {
-        /**
-         * Have a list of names of public directories.
-         * Iterate through the directory to check their availability and presence in her file index.php
-         */
-        $publicDirs = [
-            'www',
-            'public',
-            'web',
-        ];
-        foreach ($publicDirs as $publicDir) {
-            if (is_dir($publicDir) && file_exists($publicDir . DIRECTORY_SEPARATOR . "index.php")) {
-                return realpath($publicDir);
-            }
-        }
-        throw new \Exception("The public directory was not found");
-    }
-
-    public static function getDataDir()
-    {
-        return realpath('./') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
-    }
+	/**
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 * @return void
+	 */
+	protected function execute(InputInterface $input, OutputInterface $output)
+	{
+		try {
+			$rootInstaller = new RootInstaller($this->getComposer(), $this->getIO());
+			$lang = $input->getOption("lang");
+			$isDebug =(bool)($input->getOption("debug") || $input->getOption("verbose"));
+			define("isDebug", $isDebug);
+			switch ($input->getArgument("type"))
+			{
+				case self::CMD_ARG_INSTALL:
+					$rootInstaller->install($lang);
+					break;
+				case self::CMD_ARG_UNINSTALL:
+					$rootInstaller->uninstall();
+					break;
+				default:
+					$this->getIO()->writeError("Call with invalid type.");
+					$this->getIO()->write($this->getUsages());
+					break;
+			}
+		} catch (\Throwable $throwable) {
+			$this->getIO()->writeError("Error: " . $throwable->getMessage());
+		}
+	}
 }
