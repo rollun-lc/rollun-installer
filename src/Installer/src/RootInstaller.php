@@ -11,7 +11,6 @@ namespace rollun\installer;
 use Composer\Composer;
 use Composer\IO\ConsoleIO;
 use rollun\dic\InsideConstruct;
-use rollun\installer\Install\InstallerAbstract;
 use rollun\installer\Install\InstallerInterface;
 use Zend\ServiceManager\ServiceManager;
 
@@ -62,9 +61,14 @@ class RootInstaller
         foreach ($this->installers as $installer) {
             $installer->setContainer($this->container);
         }
-        /*foreach ($this->libInstallerManagers as $libInstallerManager) {
-            $libInstallerManager->setContainer($this->container);
-        }*/
+
+        //define new env constant.
+        $config = $this->container->get("config");
+        foreach ($config['env_config'] as $envName => $envValue) {
+            if(!defined($envName)) {
+                define($envName, $envValue);
+            }
+        }
     }
 
     /**

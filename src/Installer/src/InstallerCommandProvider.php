@@ -8,12 +8,21 @@
 
 namespace rollun\installer;
 
-
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\Capable;
 use Composer\Plugin\PluginInterface;
+
+/**
+ * @deprecated
+ */
+if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php')) {
+    require_once 'vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php';
+}
+if(file_exists('config/env_configurator.php')) {
+    require_once 'config/env_configurator.php';
+}
 
 class InstallerCommandProvider implements CommandProvider, PluginInterface, Capable
 {
@@ -40,10 +49,6 @@ class InstallerCommandProvider implements CommandProvider, PluginInterface, Capa
 		$this->io = $io;
 
 		//TODO: remove this gilt. Need for support back compatibility.
-		if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php')) {
-			require_once 'vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php';
-		}
-		require_once 'config/env_configurator.php';
     }
 
 	/**
