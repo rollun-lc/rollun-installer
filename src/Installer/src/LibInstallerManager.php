@@ -82,20 +82,6 @@ class LibInstallerManager
                     }
                 } else {
                     $this->installers = array_merge($this->installers, $this->findInstaller($this->src));
-                    /*foreach ($installers as $installerClass) {
-                        try {
-                            $installer = new $installerClass($this->container, $this->cliIO);
-                            $this->installers[$installerClass] = $installer;
-                        } catch (\Exception $exception) {
-                            if (constant("isDebug")) {
-                                $this->cliIO->writeError(
-                                    "Installer: $installerClass crash by exception with message: " .
-                                    $exception->getMessage()
-                                );
-                            }
-
-                        }
-                    }*/
                 }
             }
         } else {
