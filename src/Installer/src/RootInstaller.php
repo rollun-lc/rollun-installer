@@ -64,9 +64,11 @@ class RootInstaller
 
         //define new env constant.
         $config = $this->container->get("config");
-        foreach ($config['env_config'] as $envName => $envValue) {
-            if(!defined($envName)) {
-                define($envName, $envValue);
+        if(isset($config['env_config'])) {
+            foreach ($config['env_config'] as $envName => $envValue) {
+                if(!defined($envName)) {
+                    define($envName, $envValue);
+                }
             }
         }
     }
