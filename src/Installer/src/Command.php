@@ -9,6 +9,7 @@
 //Instalabe StaticInstalabe
 namespace rollun\installer;
 
+use Composer\Command\BaseCommand;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Script\Event;
@@ -24,10 +25,14 @@ if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-mi
 }
 require_once 'config/env_configurator.php';
 
+/**
+ * Class Command
+ * @package rollun\installer
+ * @deprecated see InstallerCommand::class
+ */
 class Command
 {
-
-    const INSTALL = 'install';
+	const INSTALL = 'install';
 
     const UNINSTALL = 'uninstall';
 

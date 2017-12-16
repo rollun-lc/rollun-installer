@@ -1,5 +1,6 @@
 {
     "name": "rollun-com/rollun-installer",
+    "type": "composer-plugin",
     "description": "Installer",
     "minimum-stability": "stable",
     "license": "proprietary",
@@ -40,7 +41,7 @@
     },
     "autoload": {
         "psr-4": {
-            "rollun\\installer\\": "src/"
+            "rollun\\installer\\": "src/Installer/src"
         }
     },
     "bin": [
@@ -50,6 +51,9 @@
         "psr-4": {
             "rollun\\test\\installer\\": "tests/src"
         }
+    },
+    "extra": {
+      "class": "rollun\\installer\\InstallerCommandProvider"
     },
     "scripts": {
         "post-create-project-cmd": [
@@ -68,7 +72,6 @@
         "serve": "php -S 0.0.0.0:8080 -t public public/index.php",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "upload-coverage": "coveralls -v",
-        "lib": "rollun\\installer\\Command::command"
+        "upload-coverage": "coveralls -v"
     }
 }
