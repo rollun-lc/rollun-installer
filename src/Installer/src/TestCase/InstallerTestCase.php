@@ -11,8 +11,6 @@ namespace rollun\installer\TestCase;
 
 use Composer\IO\ConsoleIO;
 use PHPUnit\Framework\TestCase;
-use rollun\dic\InsideConstruct;
-use rollun\installer\Install\InstallerInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Helper\DescriptorHelper;
@@ -20,8 +18,6 @@ use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\ProcessHelper;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Input\StreamableInputInterface;
 
 /**
