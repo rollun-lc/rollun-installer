@@ -35,7 +35,6 @@ class InstallerTestCase extends TestCase
     {
         global $container;
         $container = isset($container) ? $container : require 'config/container.php';
-        InsideConstruct::setContainer($container);
         return $container;
     }
 
