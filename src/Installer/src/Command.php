@@ -9,6 +9,7 @@
 //Instalabe StaticInstalabe
 namespace rollun\installer;
 
+use Composer\Command\BaseCommand;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Script\Event;
@@ -24,10 +25,14 @@ if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-mi
 }
 require_once 'config/env_configurator.php';
 
+/**
+ * Class Command
+ * @package rollun\installer
+ * @deprecated see InstallerCommand::class
+ */
 class Command
 {
-
-    const INSTALL = 'install';
+	const INSTALL = 'install';
 
     const UNINSTALL = 'uninstall';
 
@@ -60,7 +65,8 @@ class Command
         $argv = $event->getArguments();
         $match = [];
         $lang = preg_match('/-l=([\w]+)\|?/', implode("|", $argv), $match) ? $match[1] : null;
-
+        $isDebug = in_array("debug", $argv) ? true : false;
+        define("isDebug", $isDebug);//TODO: refactor this.
         /** @noinspection PhpParamsInspection */
         try {
             $rootInstaller = new RootInstaller($event->getComposer(), $event->getIO());

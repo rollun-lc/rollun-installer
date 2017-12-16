@@ -54,7 +54,9 @@ class LibInstallerManager
         $autoload = $package->getAutoload();
         if (isset($autoload['psr-4'])) {
             $rootNamespaces = array_keys($autoload['psr-4']);
-            $this->cliIO->writeError("autoload['psr-4']: " . implode(', ', $rootNamespaces));
+            if(constant("isDebug")) {
+                $this->cliIO->writeError("autoload['psr-4']: " . implode(', ', $rootNamespaces));
+            }
 
             foreach ($rootNamespaces as $rootNamespace) {
                 $this->rootNamespace = $rootNamespace;
@@ -75,25 +77,31 @@ class LibInstallerManager
                         $dir);
                 }
                 if (!isset($this->src) || !is_string($this->src) || !is_dir($this->src)) {
-                    $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
+                    if (constant("isDebug")) {
+                        $this->cliIO->writeError("Can't find src for package: " . $this->package->getPrettyName());
+                    }
                 } else {
-                    $installers = $this->findInstaller($this->src);
-                    foreach ($installers as $installerClass) {
+                    $this->installers = array_merge($this->installers, $this->findInstaller($this->src));
+                    /*foreach ($installers as $installerClass) {
                         try {
-                            /** @var  InstallerAbstract $installer */
                             $installer = new $installerClass($this->container, $this->cliIO);
                             $this->installers[$installerClass] = $installer;
                         } catch (\Exception $exception) {
-                            $this->cliIO->writeError(
-                                "Installer: $installerClass crash by exception with message: " .
-                                $exception->getMessage()
-                            );
+                            if (constant("isDebug")) {
+                                $this->cliIO->writeError(
+                                    "Installer: $installerClass crash by exception with message: " .
+                                    $exception->getMessage()
+                                );
+                            }
+
                         }
-                    }
+                    }*/
                 }
             }
         } else {
-            //$this->cliIO->writeError("Lib don't implements psr-4");
+            if (constant("isDebug")) {
+                $this->cliIO->writeError("Lib don't implements psr-4");
+            }
         }
     }
 
@@ -123,7 +131,7 @@ class LibInstallerManager
                 } elseif (preg_match('/Installer/', $item->getFilename())) {
                     $src = 'src';
                     $itemPath = $item->getPath();
-                    $path = ($pos = strripos($itemPath, $src)) !== false ? trim(substr($itemPath, $pos+3, strlen($itemPath)), DIRECTORY_SEPARATOR) : null;
+                    $path = ($pos = strripos($itemPath, $src)) !== false ? trim(substr($itemPath, $pos + 3, strlen($itemPath)), DIRECTORY_SEPARATOR) : null;
                     $classNameSpace = $this->rootNamespace . str_replace(DIRECTORY_SEPARATOR, '\\', $path);
                     $class = rtrim($classNameSpace, '\\') . '\\' . $item->getBasename('.php');
                     if (class_exists($class)) {
@@ -133,16 +141,18 @@ class LibInstallerManager
                                 $reflector->isInstantiable()
                             ) {
                                 $installer[] = $reflector->getName();
-                            } else {
+                            } else if (constant("isDebug")) {
                                 $this->cliIO->write("Class: $class not instantiable.");
                             }
                         } catch (\Throwable $throwable) {
-                            $message = "Message: " . $throwable->getMessage() . " ";
-                            $message .= "File: " . $throwable->getFile() . " ";
-                            $message .= "Line: " . $throwable->getLine() . " ";
-                            $this->cliIO->writeError($message);
+                            if (constant("isDebug")) {
+                                $message = "Message: " . $throwable->getMessage() . " ";
+                                $message .= "File: " . $throwable->getFile() . " ";
+                                $message .= "Line: " . $throwable->getLine() . " ";
+                                $this->cliIO->writeError($message);
+                            }
                         }
-                    } else {
+                    } else if(constant("isDebug")){
                         $this->cliIO->write("Class: $class not exist. ClassPath -> [$itemPath]. resolvePath -> [$path]");
                     }
                 }
