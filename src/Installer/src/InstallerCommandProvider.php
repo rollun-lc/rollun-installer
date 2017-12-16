@@ -14,15 +14,6 @@ use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\Capable;
 use Composer\Plugin\PluginInterface;
 
-/**
- * @deprecated
- */
-if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php')) {
-    require_once 'vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php';
-}
-if(file_exists('config/env_configurator.php')) {
-    require_once 'config/env_configurator.php';
-}
 
 class InstallerCommandProvider implements CommandProvider, PluginInterface, Capable
 {
@@ -48,7 +39,21 @@ class InstallerCommandProvider implements CommandProvider, PluginInterface, Capa
 		$this->composer = $composer;
 		$this->io = $io;
 
-		//TODO: remove this gilt. Need for support back compatibility.
+        if(file_exists('config/env_configurator.php')) {
+            require_once 'config/env_configurator.php';
+            trigger_error("This functional is deprecated. You may use config for this. For more info read https://github.com/rollun-com/all-standards", E_USER_DEPRECATED);
+        }
+
+		//generate autoloader. load all class.
+        $localRepository = $composer->getRepositoryManager()->getLocalRepository();
+        $packageMap = $composer->getAutoloadGenerator()->buildPackageMap(
+            $composer->getInstallationManager(),
+            $composer->getPackage(),
+            $localRepository->getPackages()
+        );
+        $autoload = $composer->getAutoloadGenerator()->parseAutoloads($packageMap, $composer->getPackage());
+        $loader = $composer->getAutoloadGenerator()->createLoader($autoload);
+        spl_autoload_register([$loader, "loadClass"]);
     }
 
 	/**

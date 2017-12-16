@@ -45,7 +45,7 @@ class InstallerCommand extends BaseCommand
 			"-l",
 			InputOption::VALUE_OPTIONAL,
 			"Output language.",
-			null
+			"en"
 		);
 
 		//TODO: remove this. see isDebug (OutputInterface or --verbose options)
@@ -66,10 +66,12 @@ class InstallerCommand extends BaseCommand
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
 		try {
-			$rootInstaller = new RootInstaller($this->getComposer(), $this->getIO());
+            $isDebug =(bool)($input->getOption("debug") || $input->getOption("verbose"));
+            define("isDebug", $isDebug);
+
+            $rootInstaller = new RootInstaller($this->getComposer(), $this->getIO());
+
 			$lang = $input->getOption("lang");
-			$isDebug =(bool)($input->getOption("debug") || $input->getOption("verbose"));
-			define("isDebug", $isDebug);
 			switch ($input->getArgument("type"))
 			{
 				case self::CMD_ARG_INSTALL:
