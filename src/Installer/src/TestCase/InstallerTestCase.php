@@ -10,6 +10,8 @@
 namespace rollun\installer\TestCase;
 
 use Composer\IO\ConsoleIO;
+use PHPUnit\Framework\TestCase;
+use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
@@ -26,14 +28,14 @@ use Symfony\Component\Console\Input\StreamableInputInterface;
  *
  * @see \rollun\test\installer\Install\InstallerAbstractTest
  */
-class InstallerTestCase extends \PHPUnit\Framework\TestCase
+class InstallerTestCase extends TestCase
 {
 
     public function getContainer()
     {
         global $container;
         $container = isset($container) ? $container : require 'config/container.php';
-        \rollun\dic\InsideConstruct::setContainer($container);
+        InsideConstruct::setContainer($container);
         return $container;
     }
 
