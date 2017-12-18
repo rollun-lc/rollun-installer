@@ -44,15 +44,20 @@ class InstallerCommandProvider implements CommandProvider, PluginInterface, Capa
             trigger_error("This functional is deprecated. You may use config for this. For more info read https://github.com/rollun-com/all-standards", E_USER_DEPRECATED);
         }
 
-		//generate autoloader. load all class.
+		// Generate custom autoload witch can load all class.
+        // Has compose all autoload script/loader from root and dependency packages.
+        // Need if dependency has self custom autoload, like for example in **webimpress/http-middleware-compatibility**
         $localRepository = $composer->getRepositoryManager()->getLocalRepository();
         $packageMap = $composer->getAutoloadGenerator()->buildPackageMap(
-            $composer->getInstallationManager(),
-            $composer->getPackage(),
-            $localRepository->getPackages()
+            $composer->getInstallationManager(), //Composer InstallationManager object
+            $composer->getPackage(), //Composer root package object
+            $localRepository->getPackages() //Array of dependency package
         );
-        $autoload = $composer->getAutoloadGenerator()->parseAutoloads($packageMap, $composer->getPackage());
-        $loader = $composer->getAutoloadGenerator()->createLoader($autoload);
+        // Generate array with all packages autoload info.
+        $autoloads = $composer->getAutoloadGenerator()->parseAutoloads($packageMap, $composer->getPackage());
+        // Create custom loader.
+        $loader = $composer->getAutoloadGenerator()->createLoader($autoloads);
+        // Register loader
         spl_autoload_register([$loader, "loadClass"]);
     }
 

@@ -19,12 +19,6 @@ use RecursiveDirectoryIterator;
 use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
 
-//because composer not loads dependent autoload script.
-if(file_exists('vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php')) {
-    require_once 'vendor/webimpress/http-middleware-compatibility/autoload/http-middleware.php';
-}
-require_once 'config/env_configurator.php';
-
 /**
  * Class Command
  * @package rollun\installer
