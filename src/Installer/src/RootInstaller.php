@@ -10,6 +10,7 @@ namespace rollun\installer;
 
 use Composer\Composer;
 use Composer\IO\ConsoleIO;
+use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
 use Zend\ServiceManager\ServiceManager;
 
@@ -55,7 +56,7 @@ class RootInstaller
     private function reloadContainer()
     {
         $this->container = include 'config/container.php';
-
+        InsideConstruct::setContainer($this->container);
         foreach ($this->installers as $installer) {
             $installer->setContainer($this->container);
         }

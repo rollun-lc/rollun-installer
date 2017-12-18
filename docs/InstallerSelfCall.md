@@ -40,3 +40,12 @@
 ```bash
    vendor\bin\InstallerSelfCall.php.bat "rollun\datastore\DataStore\Eav\Installer" reinstall
 ```
+
+Так же вы можете запускать используя **php**
+
+```bash
+    php vendor/rollun-com/rollun-installer/bin/InstallerSelfCall.php "rollun\datastore\DataStore\Eav\Installer" install   
+```
+
+Под **php** стоит воспринимать полный путь к исполняемой программе *php*.
+Напримр используя *OpenServer* у вас будет путь примерно такой `D:\OpenServer\modules\php\PHP-7.1-x64\php.exe`
