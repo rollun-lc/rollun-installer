@@ -15,5 +15,8 @@ if ($appEnv != 'dev') {
 
 // Setup autoloading
 require 'vendor/autoload.php';
-require_once 'config/env_configurator.php';
+if(file_exists('config/env_configurator.php')){
+    trigger_error("This functional is deprecated. You may use config for this. For more info read https://github.com/rollun-com/all-standards", E_USER_DEPRECATED);
+    require_once 'config/env_configurator.php';
+}
 
