@@ -1,4 +1,5 @@
 {
+
     "name": "rollun-com/rollun-installer",
     "type": "composer-plugin",
     "description": "Installer",
@@ -44,7 +45,7 @@
         }
     },
     "extra": {
-      "class": "rollun\\installer\\InstallerCommandProvider"
+        "class": "rollun\\installer\\InstallerCommandProvider"
     },
     "scripts": {
         "check": [
