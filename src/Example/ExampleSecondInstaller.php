@@ -25,7 +25,9 @@ class ExampleSecondInstaller extends InstallerAbstract
         $returnConfig = $this->callInstaller(ExampleOneInstaller::class);
         try {
             $config = $this->container->get("config");
-        } catch (NotFoundExceptionInterface | ContainerExceptionInterface $e) {
+        } catch (NotFoundExceptionInterface $e) {
+            throw new InstallerException("Exception by run isInstall.", $e->getCode(), $e);
+        } catch (ContainerExceptionInterface $e) {
             throw new InstallerException("Exception by run isInstall.", $e->getCode(), $e);
         }
         if(isset($config[ExampleOneInstaller::class]) && $config[ExampleOneInstaller::class] === true) {
