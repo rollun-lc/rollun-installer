@@ -69,7 +69,9 @@ class ExampleSecondInstaller extends InstallerAbstract
     {
         try {
             $config = $this->container->get("config");
-        } catch (NotFoundExceptionInterface | ContainerExceptionInterface $e) {
+        } catch (NotFoundExceptionInterface $e) {
+            throw new InstallerException("Exception by run isInstall.", $e->getCode(), $e);
+        } catch (ContainerExceptionInterface $e) {
             throw new InstallerException("Exception by run isInstall.", $e->getCode(), $e);
         }
         return (
