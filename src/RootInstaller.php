@@ -88,7 +88,7 @@ class RootInstaller
             $this->libInstallerManagers[] = $libInstallManager = new LibInstallerManager(
                 $this->composer->getPackage(),
                 $this->container,
-                $this->cliIO,
+                new ProxyConsoleIO($this->cliIO),
                 realpath("./")
             );
             $installers = array_merge($installers, $libInstallManager->getInstallers());
@@ -101,7 +101,7 @@ class RootInstaller
         foreach ($installers as $installerClass) {
             try {
                 /** @var InstallerInterface $installer */
-                $installer = new $installerClass($this->container, $this->cliIO);
+                $installer = new $installerClass($this->container, new ProxyConsoleIO($this->cliIO));
                 $installer->setRootInstaller($this);
                 $this->installers[$installerClass] = $installer;
             } catch (\Exception $exception) {
