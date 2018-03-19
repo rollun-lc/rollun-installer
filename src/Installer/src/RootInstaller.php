@@ -63,9 +63,9 @@ class RootInstaller
 
         //define new env constant.
         $config = $this->container->get("config");
-        if(isset($config['env_config'])) {
+        if (isset($config['env_config'])) {
             foreach ($config['env_config'] as $envName => $envValue) {
-                if(!defined($envName)) {
+                if (!defined($envName)) {
                     define($envName, $envValue);
                 }
             }
@@ -83,7 +83,7 @@ class RootInstaller
         $dependencies = $localRep->getPackages();
         $installers = [];
         foreach ($dependencies as $dependency) {
-            $libInstallManager = new LibInstallerManager($dependency, $this->container, $this->cliIO);
+            $libInstallManager = new LibInstallerManager($dependency, $this->container, new ProxyConsoleIO($this->cliIO));
             if ($libInstallManager->isSupported()) {
                 $this->libInstallerManagers[] = $libInstallManager;
                 $installers = array_merge($installers, $libInstallManager->getInstallers());
@@ -93,7 +93,7 @@ class RootInstaller
             $this->libInstallerManagers[] = $libInstallManager = new LibInstallerManager(
                 $this->composer->getPackage(),
                 $this->container,
-                $this->cliIO,
+                new ProxyConsoleIO($this->cliIO),
                 realpath("./")
             );
             $installers = array_merge($installers, $libInstallManager->getInstallers());
