@@ -8,7 +8,6 @@
 
 namespace rollun\installer;
 
-
 use Composer\Command\BaseCommand;
 use function Couchbase\basicEncoderV1;
 use Symfony\Component\Console\Input\InputArgument;
