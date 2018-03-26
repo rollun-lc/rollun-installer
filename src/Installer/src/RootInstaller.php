@@ -106,7 +106,7 @@ class RootInstaller
         foreach ($installers as $installerClass) {
             try {
                 /** @var InstallerInterface $installer */
-                $installer = new $installerClass($this->container, $this->cliIO);
+                $installer = new $installerClass($this->container, new ProxyConsoleIO($this->cliIO));
                 $installer->setRootInstaller($this);
                 $this->installers[$installerClass] = $installer;
             } catch (\Exception $exception) {
