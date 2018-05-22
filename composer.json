@@ -20,7 +20,7 @@
         "composer/composer": "^1.0",
         "composer-plugin-api": "^1.1",
         "zendframework/zend-servicemanager": "^3.3",
-        "rollun-com/rollun-dic": "^3.0"
+        "rollun-com/rollun-dic": "^3.1"
     },
     "require-dev": {
         "zendframework/zend-component-installer": "^1.0",
