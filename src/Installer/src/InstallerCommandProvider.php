@@ -93,4 +93,14 @@ class InstallerCommandProvider implements CommandProvider, PluginInterface, Capa
 	{
 		return [CommandProvider::class => static::class];
 	}
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement deactivate() method.
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement uninstall() method.
+    }
 }
