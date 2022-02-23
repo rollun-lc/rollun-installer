@@ -85,3 +85,6 @@ Temporary Items
 
 # NetBeans
 nbproject/
+
+.env
+.phpunit.result.cache

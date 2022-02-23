@@ -2,7 +2,7 @@
     "name": "rollun-com/rollun-installer",
     "type": "composer-plugin",
     "description": "Installer",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "license": "proprietary",
     "authors": [
         {
@@ -19,8 +19,18 @@
         "psr/log": "^2.0.0",
         "composer/composer": "^2.0",
         "composer-plugin-api": "^2.2",
-        "laminas/laminas-servicemanager": "^3.10",
-        "rollun-com/rollun-dic": "dev-laminas"
+        "laminas/laminas-http": "^2.15.1",
+        "laminas/laminas-servicemanager": "^3.10.0",
+        "laminas/laminas-db": "^2.13.4",
+        "laminas/laminas-diactoros": "^2.8.0",
+        "laminas/laminas-stratigility": "^3.5.0",
+        "rollun-com/rollun-dic": "^4.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5.10",
+        "symfony/dotenv": "^v6.0.3",
+        "laminas/laminas-config-aggregator": "^1.7",
+        "mezzio/mezzio": "^3.9"
     },
     "autoload": {
         "psr-4": {
