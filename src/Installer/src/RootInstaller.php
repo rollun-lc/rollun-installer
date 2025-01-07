@@ -12,7 +12,7 @@ use Composer\Composer;
 use Composer\IO\ConsoleIO;
 use rollun\dic\InsideConstruct;
 use rollun\installer\Install\InstallerInterface;
-use Zend\ServiceManager\ServiceManager;
+use Laminas\ServiceManager\ServiceManager;
 
 
 /**
